@@ -41,7 +41,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 
 There are two ways to run the tool:
 
-- The package module files may be downloaded and run as a python files. Navigate to **ChemGAPP_Package/src/** and download the module files. 
+- The package module files may be downloaded and run as a python files. Navigate to `ChemGAPP_Package/src/` and download the module files. 
 
 - Streamlit applications. 
   
@@ -49,12 +49,12 @@ There are two ways to run the tool:
     - First download the APP files
     - Ensure you have Python 3. This can be easily downloaded by installing Anaconda-Naviagator (available here: https://www.anaconda.com/products/distribution)
   - For Mac:
-    - Open terminal to navigate into the **ChemGAPP_APPs** directory and follow the below instructions.
+    - Open terminal to navigate into the `ChemGAPP_APPs` directory and follow the below instructions.
   - For Windows:
-    - Within Anaconda-Navigator click on the **Environments** tab, then for **base (root)** click the green play button and select **Open Terminal**. Then navigate into the **ChemGAPP_APPs** directory and follow the below instructions.
+    - Within Anaconda-Navigator click on the `Environments` tab, then for `base (root)` click the green play button and select `Open Terminal`. Then navigate into the `ChemGAPP_APPs` directory and follow the below instructions.
 
 
-  - For ChemGAPP Big, you need to navigate into the **ChemGAPP_APPs** directory and then the **ChemGAPP_Big** directory and launch the application, using the following command in terminal:
+  - For ChemGAPP Big, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Big` directory and launch the application, using the following command in terminal:
 
 ```
 pip install -r requirements.txt
@@ -66,7 +66,7 @@ The commmand provides a link to the following front web application:
 <img src="https://github.com/HannahMDoherty/ChemGAPP/blob/main/ChemGAPP_APP.png" width="500" />
 </p>
 
-  - For ChemGAPP_Small, you need to navigate into the **ChemGAPP_APPs** directory and then the **ChemGAPP_Small** directory and launch the application, using the following command in terminal:
+  - For ChemGAPP_Small, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Small` directory and launch the application, using the following command in terminal:
 
 ```
 pip install -r requirements.txt
@@ -78,7 +78,7 @@ The commmand provides a link to the following front web application:
 <img src="https://github.com/HannahMDoherty/ChemGAPP/blob/main/ChemGAPP_Small.png" width="500" />
 </p>
 
-  - For ChemGAPP_GI, you need to navigate into the **ChemGAPP_APPs** directory and then the **ChemGAPP_GI** directory and launch the application, using the following command in terminal:
+  - For ChemGAPP_GI, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_GI` directory and launch the application, using the following command in terminal:
 
 ```
 pip install -r requirements.txt
@@ -145,7 +145,7 @@ The commmand provides a link to the following front web application:
 
 All tools are initiated using the python command. The help instruction is called using -h option.
 
-**Colony Size is stated as the phenotype within the below examples for ease. However, any Iris phenotype (e.g opacity, circularity etc) can be analysed**
+`Colony Size is stated as the phenotype within the below examples for ease. However, any Iris phenotype (e.g opacity, circularity etc) can be analysed`
 
 #### Iris_to_Dataset.py <a name="Iris_to_dataset"></a>
 
@@ -173,7 +173,7 @@ E.g. `AMPICILLIN-0,5 mM-6-1_B.JPG.iris`
 
 Where a concentration is not relevant, put two dashes between condition and plate number:
 
-E.g. `LB--1-2_A.JPG.iris'
+E.g. `LB--1-2_A.JPG.iris`
 
 If only one source plate and/or only one batch was produced, assign 1 for these:
 
@@ -899,13 +899,13 @@ MexA would be the Primary Gene
 
 ### Test files <a name="package"></a>
 
-These files are located in the **ChemGAPP/Test_Files** folder and include:
+These files are located in the `ChemGAPP/Test_Files` folder and include:
 
-1.  **ChemGAPP_Big/** Folder containing test IRIS files, plate information files and cluster data for ChemGAPP Big. 
+1.  `ChemGAPP_Big/` Folder containing test IRIS files, plate information files and cluster data for ChemGAPP Big. 
 
-2. **ChemGAPP_Small/**  Folder containing test IRIS files and plate information file ChemGAPP Small.
+2. `ChemGAPP_Small/`  Folder containing test IRIS files and plate information file ChemGAPP Small.
 
-3. **ChemGAPP_GI/** Folder containing test IRIS files and plate information file ChemGAPP GI.
+3. `ChemGAPP_GI/` Folder containing test IRIS files and plate information file ChemGAPP GI.
 
 ----
 ### Contact <a name="contact"></a>
