@@ -15,9 +15,7 @@
 
 ChemGAPP encompasses three modules, each with a dedicated Streamlit App.
 
-### License <a name="license"></a>
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 #### ChemGAPP Big
 This package is for the quality control analysis of large chemical genomic screen data. Since many issues can arise during chemical genomic screens, such as pinning mistakes and edge effects, this package aims to improve the quality of the inputted data. It achieves this via the normalisation of plate data and by performing a series of statistical analyses for the removal of detrimental replicates or conditions. Following this, it is able to score data and assign fitness scores (S-scores). The statistical analyses included are: the Z-score test, the Mann-Whitney test, and condition variance analysis. 
@@ -30,6 +28,12 @@ ChemGAPP_Small has been produced to deal with small scale chemical genomic scree
 #### ChemGAPP GI
 
 ChemGAPP GI focuses on the analysis of genetic interaction studies. ChemGAPP GI calculates the fitness ratio of two single mutant strains and a double knockout in comparison to the wildtype. It also calculates the expected double knockout fitness ratio for comparison to the observed fitness ratio. ChemGAPP GI displays this data as a bar plot. 
+
+------
+
+### License <a name="license"></a>
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 ----
 
@@ -45,7 +49,7 @@ There are two ways to run the tool:
     - First download the APP files
     - Ensure you have Python 3. This can be easily downloaded by installing Anaconda-Naviagator (available here: https://www.anaconda.com/products/distribution)
   - For Mac:
-    - Open terminal to navigate into the 'ChemGAPP_APPs' directory and follow the below instructions.
+    - Open terminal to navigate into the **ChemGAPP_APPs** directory and follow the below instructions.
   - For Windows:
     - Within Anaconda-Navigator click on the **Environments** tab, then for **base (root)** click the green play button and select **Open Terminal**. Then navigate into the **ChemGAPP_APPs** directory and follow the below instructions.
 
