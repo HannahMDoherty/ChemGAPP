@@ -1,0 +1,385 @@
+384 Row	384 Column	Mutants	Replicate	Order	Set
+1	1	WT	1	0	1
+1	2	Primary Gene	1	1	1
+1	3	WT	2	0	1
+1	4	Primary Gene	2	1	1
+1	5	WT	3	0	1
+1	6	Primary Gene	3	1	1
+1	7	WT	4	0	1
+1	8	Primary Gene	4	1	1
+1	9	WT	5	0	1
+1	10	Primary Gene	5	1	1
+1	11	WT	6	0	1
+1	12	Primary Gene	6	1	1
+1	13	WT	7	0	1
+1	14	Primary Gene	7	1	1
+1	15	WT	8	0	1
+1	16	Primary Gene	8	1	1
+1	17	WT	9	0	1
+1	18	Primary Gene	9	1	1
+1	19	WT	10	0	1
+1	20	Primary Gene	10	1	1
+1	21	WT	11	0	1
+1	22	Primary Gene	11	1	1
+1	23	WT	12	0	1
+1	24	Primary Gene	12	1	1
+2	1	Secondary Gene	1	2	1
+2	2	Double Knockout	1	3	1
+2	3	Secondary Gene	2	2	1
+2	4	Double Knockout	2	3	1
+2	5	Secondary Gene	3	2	1
+2	6	Double Knockout	3	3	1
+2	7	Secondary Gene	4	2	1
+2	8	Double Knockout	4	3	1
+2	9	Secondary Gene	5	2	1
+2	10	Double Knockout	5	3	1
+2	11	Secondary Gene	6	2	1
+2	12	Double Knockout	6	3	1
+2	13	Secondary Gene	7	2	1
+2	14	Double Knockout	7	3	1
+2	15	Secondary Gene	8	2	1
+2	16	Double Knockout	8	3	1
+2	17	Secondary Gene	9	2	1
+2	18	Double Knockout	9	3	1
+2	19	Secondary Gene	10	2	1
+2	20	Double Knockout	10	3	1
+2	21	Secondary Gene	11	2	1
+2	22	Double Knockout	11	3	1
+2	23	Secondary Gene	12	2	1
+2	24	Double Knockout	12	3	1
+3	1	WT	13	0	1
+3	2	Primary Gene	13	1	1
+3	3	WT	14	0	1
+3	4	Primary Gene	14	1	1
+3	5	WT	15	0	1
+3	6	Primary Gene	15	1	1
+3	7	WT	16	0	1
+3	8	Primary Gene	16	1	1
+3	9	WT	17	0	1
+3	10	Primary Gene	17	1	1
+3	11	WT	18	0	1
+3	12	Primary Gene	18	1	1
+3	13	WT	19	0	1
+3	14	Primary Gene	19	1	1
+3	15	WT	20	0	1
+3	16	Primary Gene	20	1	1
+3	17	WT	21	0	1
+3	18	Primary Gene	21	1	1
+3	19	WT	22	0	1
+3	20	Primary Gene	22	1	1
+3	21	WT	23	0	1
+3	22	Primary Gene	23	1	1
+3	23	WT	24	0	1
+3	24	Primary Gene	24	1	1
+4	1	Secondary Gene	13	2	1
+4	2	Double Knockout	13	3	1
+4	3	Secondary Gene	14	2	1
+4	4	Double Knockout	14	3	1
+4	5	Secondary Gene	15	2	1
+4	6	Double Knockout	15	3	1
+4	7	Secondary Gene	16	2	1
+4	8	Double Knockout	16	3	1
+4	9	Secondary Gene	17	2	1
+4	10	Double Knockout	17	3	1
+4	11	Secondary Gene	18	2	1
+4	12	Double Knockout	18	3	1
+4	13	Secondary Gene	19	2	1
+4	14	Double Knockout	19	3	1
+4	15	Secondary Gene	20	2	1
+4	16	Double Knockout	20	3	1
+4	17	Secondary Gene	21	2	1
+4	18	Double Knockout	21	3	1
+4	19	Secondary Gene	22	2	1
+4	20	Double Knockout	22	3	1
+4	21	Secondary Gene	23	2	1
+4	22	Double Knockout	23	3	1
+4	23	Secondary Gene	24	2	1
+4	24	Double Knockout	24	3	1
+5	1	WT	25	0	1
+5	2	Primary Gene	25	1	1
+5	3	WT	26	0	1
+5	4	Primary Gene	26	1	1
+5	5	WT	27	0	1
+5	6	Primary Gene	27	1	1
+5	7	WT	28	0	1
+5	8	Primary Gene	28	1	1
+5	9	WT	29	0	1
+5	10	Primary Gene	29	1	1
+5	11	WT	30	0	1
+5	12	Primary Gene	30	1	1
+5	13	WT	31	0	1
+5	14	Primary Gene	31	1	1
+5	15	WT	32	0	1
+5	16	Primary Gene	32	1	1
+5	17	WT	33	0	1
+5	18	Primary Gene	33	1	1
+5	19	WT	34	0	1
+5	20	Primary Gene	34	1	1
+5	21	WT	35	0	1
+5	22	Primary Gene	35	1	1
+5	23	WT	36	0	1
+5	24	Primary Gene	36	1	1
+6	1	Secondary Gene	25	2	1
+6	2	Double Knockout	25	3	1
+6	3	Secondary Gene	26	2	1
+6	4	Double Knockout	26	3	1
+6	5	Secondary Gene	27	2	1
+6	6	Double Knockout	27	3	1
+6	7	Secondary Gene	28	2	1
+6	8	Double Knockout	28	3	1
+6	9	Secondary Gene	29	2	1
+6	10	Double Knockout	29	3	1
+6	11	Secondary Gene	30	2	1
+6	12	Double Knockout	30	3	1
+6	13	Secondary Gene	31	2	1
+6	14	Double Knockout	31	3	1
+6	15	Secondary Gene	32	2	1
+6	16	Double Knockout	32	3	1
+6	17	Secondary Gene	33	2	1
+6	18	Double Knockout	33	3	1
+6	19	Secondary Gene	34	2	1
+6	20	Double Knockout	34	3	1
+6	21	Secondary Gene	35	2	1
+6	22	Double Knockout	35	3	1
+6	23	Secondary Gene	36	2	1
+6	24	Double Knockout	36	3	1
+7	1	WT	37	0	1
+7	2	Primary Gene	37	1	1
+7	3	WT	38	0	1
+7	4	Primary Gene	38	1	1
+7	5	WT	39	0	1
+7	6	Primary Gene	39	1	1
+7	7	WT	40	0	1
+7	8	Primary Gene	40	1	1
+7	9	WT	41	0	1
+7	10	Primary Gene	41	1	1
+7	11	WT	42	0	1
+7	12	Primary Gene	42	1	1
+7	13	WT	43	0	1
+7	14	Primary Gene	43	1	1
+7	15	WT	44	0	1
+7	16	Primary Gene	44	1	1
+7	17	WT	45	0	1
+7	18	Primary Gene	45	1	1
+7	19	WT	46	0	1
+7	20	Primary Gene	46	1	1
+7	21	WT	47	0	1
+7	22	Primary Gene	47	1	1
+7	23	WT	48	0	1
+7	24	Primary Gene	48	1	1
+8	1	Secondary Gene	37	2	1
+8	2	Double Knockout	37	3	1
+8	3	Secondary Gene	38	2	1
+8	4	Double Knockout	38	3	1
+8	5	Secondary Gene	39	2	1
+8	6	Double Knockout	39	3	1
+8	7	Secondary Gene	40	2	1
+8	8	Double Knockout	40	3	1
+8	9	Secondary Gene	41	2	1
+8	10	Double Knockout	41	3	1
+8	11	Secondary Gene	42	2	1
+8	12	Double Knockout	42	3	1
+8	13	Secondary Gene	43	2	1
+8	14	Double Knockout	43	3	1
+8	15	Secondary Gene	44	2	1
+8	16	Double Knockout	44	3	1
+8	17	Secondary Gene	45	2	1
+8	18	Double Knockout	45	3	1
+8	19	Secondary Gene	46	2	1
+8	20	Double Knockout	46	3	1
+8	21	Secondary Gene	47	2	1
+8	22	Double Knockout	47	3	1
+8	23	Secondary Gene	48	2	1
+8	24	Double Knockout	48	3	1
+9	1	WT	49	0	1
+9	2	Primary Gene	49	1	1
+9	3	WT	50	0	1
+9	4	Primary Gene	50	1	1
+9	5	WT	51	0	1
+9	6	Primary Gene	51	1	1
+9	7	WT	52	0	1
+9	8	Primary Gene	52	1	1
+9	9	WT	53	0	1
+9	10	Primary Gene	53	1	1
+9	11	WT	54	0	1
+9	12	Primary Gene	54	1	1
+9	13	WT	55	0	1
+9	14	Primary Gene	55	1	1
+9	15	WT	56	0	1
+9	16	Primary Gene	56	1	1
+9	17	WT	57	0	1
+9	18	Primary Gene	57	1	1
+9	19	WT	58	0	1
+9	20	Primary Gene	58	1	1
+9	21	WT	59	0	1
+9	22	Primary Gene	59	1	1
+9	23	WT	60	0	1
+9	24	Primary Gene	60	1	1
+10	1	Secondary Gene	49	2	1
+10	2	Double Knockout	49	3	1
+10	3	Secondary Gene	50	2	1
+10	4	Double Knockout	50	3	1
+10	5	Secondary Gene	51	2	1
+10	6	Double Knockout	51	3	1
+10	7	Secondary Gene	52	2	1
+10	8	Double Knockout	52	3	1
+10	9	Secondary Gene	53	2	1
+10	10	Double Knockout	53	3	1
+10	11	Secondary Gene	54	2	1
+10	12	Double Knockout	54	3	1
+10	13	Secondary Gene	55	2	1
+10	14	Double Knockout	55	3	1
+10	15	Secondary Gene	56	2	1
+10	16	Double Knockout	56	3	1
+10	17	Secondary Gene	57	2	1
+10	18	Double Knockout	57	3	1
+10	19	Secondary Gene	58	2	1
+10	20	Double Knockout	58	3	1
+10	21	Secondary Gene	59	2	1
+10	22	Double Knockout	59	3	1
+10	23	Secondary Gene	60	2	1
+10	24	Double Knockout	60	3	1
+11	1	WT	61	0	1
+11	2	Primary Gene	61	1	1
+11	3	WT	62	0	1
+11	4	Primary Gene	62	1	1
+11	5	WT	63	0	1
+11	6	Primary Gene	63	1	1
+11	7	WT	64	0	1
+11	8	Primary Gene	64	1	1
+11	9	WT	65	0	1
+11	10	Primary Gene	65	1	1
+11	11	WT	66	0	1
+11	12	Primary Gene	66	1	1
+11	13	WT	67	0	1
+11	14	Primary Gene	67	1	1
+11	15	WT	68	0	1
+11	16	Primary Gene	68	1	1
+11	17	WT	69	0	1
+11	18	Primary Gene	69	1	1
+11	19	WT	70	0	1
+11	20	Primary Gene	70	1	1
+11	21	WT	71	0	1
+11	22	Primary Gene	71	1	1
+11	23	WT	72	0	1
+11	24	Primary Gene	72	1	1
+12	1	Secondary Gene	61	2	1
+12	2	Double Knockout	61	3	1
+12	3	Secondary Gene	62	2	1
+12	4	Double Knockout	62	3	1
+12	5	Secondary Gene	63	2	1
+12	6	Double Knockout	63	3	1
+12	7	Secondary Gene	64	2	1
+12	8	Double Knockout	64	3	1
+12	9	Secondary Gene	65	2	1
+12	10	Double Knockout	65	3	1
+12	11	Secondary Gene	66	2	1
+12	12	Double Knockout	66	3	1
+12	13	Secondary Gene	67	2	1
+12	14	Double Knockout	67	3	1
+12	15	Secondary Gene	68	2	1
+12	16	Double Knockout	68	3	1
+12	17	Secondary Gene	69	2	1
+12	18	Double Knockout	69	3	1
+12	19	Secondary Gene	70	2	1
+12	20	Double Knockout	70	3	1
+12	21	Secondary Gene	71	2	1
+12	22	Double Knockout	71	3	1
+12	23	Secondary Gene	72	2	1
+12	24	Double Knockout	72	3	1
+13	1	WT	73	0	1
+13	2	Primary Gene	73	1	1
+13	3	WT	74	0	1
+13	4	Primary Gene	74	1	1
+13	5	WT	75	0	1
+13	6	Primary Gene	75	1	1
+13	7	WT	76	0	1
+13	8	Primary Gene	76	1	1
+13	9	WT	77	0	1
+13	10	Primary Gene	77	1	1
+13	11	WT	78	0	1
+13	12	Primary Gene	78	1	1
+13	13	WT	79	0	1
+13	14	Primary Gene	79	1	1
+13	15	WT	80	0	1
+13	16	Primary Gene	80	1	1
+13	17	WT	81	0	1
+13	18	Primary Gene	81	1	1
+13	19	WT	82	0	1
+13	20	Primary Gene	82	1	1
+13	21	WT	83	0	1
+13	22	Primary Gene	83	1	1
+13	23	WT	84	0	1
+13	24	Primary Gene	84	1	1
+14	1	Secondary Gene	73	2	1
+14	2	Double Knockout	73	3	1
+14	3	Secondary Gene	74	2	1
+14	4	Double Knockout	74	3	1
+14	5	Secondary Gene	75	2	1
+14	6	Double Knockout	75	3	1
+14	7	Secondary Gene	76	2	1
+14	8	Double Knockout	76	3	1
+14	9	Secondary Gene	77	2	1
+14	10	Double Knockout	77	3	1
+14	11	Secondary Gene	78	2	1
+14	12	Double Knockout	78	3	1
+14	13	Secondary Gene	79	2	1
+14	14	Double Knockout	79	3	1
+14	15	Secondary Gene	80	2	1
+14	16	Double Knockout	80	3	1
+14	17	Secondary Gene	81	2	1
+14	18	Double Knockout	81	3	1
+14	19	Secondary Gene	82	2	1
+14	20	Double Knockout	82	3	1
+14	21	Secondary Gene	83	2	1
+14	22	Double Knockout	83	3	1
+14	23	Secondary Gene	84	2	1
+14	24	Double Knockout	84	3	1
+15	1	WT	85	0	1
+15	2	Primary Gene	85	1	1
+15	3	WT	86	0	1
+15	4	Primary Gene	86	1	1
+15	5	WT	87	0	1
+15	6	Primary Gene	87	1	1
+15	7	WT	88	0	1
+15	8	Primary Gene	88	1	1
+15	9	WT	89	0	1
+15	10	Primary Gene	89	1	1
+15	11	WT	90	0	1
+15	12	Primary Gene	90	1	1
+15	13	WT	91	0	1
+15	14	Primary Gene	91	1	1
+15	15	WT	92	0	1
+15	16	Primary Gene	92	1	1
+15	17	WT	93	0	1
+15	18	Primary Gene	93	1	1
+15	19	WT	94	0	1
+15	20	Primary Gene	94	1	1
+15	21	WT	95	0	1
+15	22	Primary Gene	95	1	1
+15	23	WT	96	0	1
+15	24	Primary Gene	96	1	1
+16	1	Secondary Gene	85	2	1
+16	2	Double Knockout	85	3	1
+16	3	Secondary Gene	86	2	1
+16	4	Double Knockout	86	3	1
+16	5	Secondary Gene	87	2	1
+16	6	Double Knockout	87	3	1
+16	7	Secondary Gene	88	2	1
+16	8	Double Knockout	88	3	1
+16	9	Secondary Gene	89	2	1
+16	10	Double Knockout	89	3	1
+16	11	Secondary Gene	90	2	1
+16	12	Double Knockout	90	3	1
+16	13	Secondary Gene	91	2	1
+16	14	Double Knockout	91	3	1
+16	15	Secondary Gene	92	2	1
+16	16	Double Knockout	92	3	1
+16	17	Secondary Gene	93	2	1
+16	18	Double Knockout	93	3	1
+16	19	Secondary Gene	94	2	1
+16	20	Double Knockout	94	3	1
+16	21	Secondary Gene	95	2	1
+16	22	Double Knockout	95	3	1
+16	23	Secondary Gene	96	2	1
+16	24	Double Knockout	96	3	1
