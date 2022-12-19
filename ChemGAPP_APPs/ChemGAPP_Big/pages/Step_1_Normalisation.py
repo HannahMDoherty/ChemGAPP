@@ -81,6 +81,7 @@ if complete:
     my_bar = st.sidebar.progress(0)
     element2 = st.sidebar.info("Files are being proccessed please wait!")
     m = None
+    # cycles through iris files and uses filename to produce column headers.
     for f in uploaded_files:
         g = pd.read_csv(f,
                 comment='#',
@@ -120,9 +121,9 @@ if complete:
     element3.empty()
     elementn = st.info("Normalising Data...")
     m = m.apply(pd.to_numeric)
-    #m = m.replace({0:np.nan})
     m = m[sorted(m)]
     m_array = np.array(m)
+     #calculates the size of the inputted plates
     mlen = len(m)
     if mlen == 1536:
         rlen = 32
@@ -135,16 +136,18 @@ if complete:
         clen = 12
     n = m
     n = n.apply(pd.to_numeric)
-   #n = n.replace({0:np.nan})
     n = n[sorted(n)]
     n_array = np.array(n)
     m_ind = m.reset_index()
+    # produces dataframe and array excluding the outer two rows and columns for each plate for plate middle mean (PMM) calculation
     mask = (m_ind['row'] != 1) & (m_ind['row'] != rlen) & (m_ind['column'] != 1) & (m_ind['column'] != clen) & (m_ind['row'] != 2) & (m_ind['row'] != (rlen-1)) & (m_ind['column'] != 2) & (m_ind['column'] != (clen-1))
     df_pmm = m_ind[mask]
     df_pmm = df_pmm.set_index(['row','column'])
+    # produces dataframe and array of the outer two rows and columns for each plate
     df_outer = m_ind[-mask]
     df_outer = df_outer.set_index(['row','column'])
     pmm_array = np.array(df_pmm)
+    #calculates median colony size for the entire dataset
     m_medain = np.nanmedian(m_array)
     df_outer_norm = pd.DataFrame(index=m.index)
     #Change all false zeros to NaN in the dataset
@@ -169,16 +172,20 @@ if complete:
     ardf = np.zeros((mlen, 1))
     ardf.shape = (mlen,1)
     rounds = 0
+    #runs through each plate individually matching the plates for the outer and inner dataframes
     for c1,c2,i in zip(sorted(df_pmm.columns),sorted(df_outer.columns), range(len(m.columns))):
         rounds = rounds + 1
         print(rounds)
         ar1 = pmm_array[:,i]
         ar2 = n_array[:,i]
+        # finds the colony sizes within the 40th and 60th percentiles for PMM calculation
         pmm_40 = np.nanpercentile(ar1, 40)
         pmm_60 = np.nanpercentile(ar1, 60)
         mask2= (ar1 >= pmm_40) & (ar1 <= pmm_60) 
         pmm_perc_values = ar1[mask2]
+        # finds mean of these 40th-60th percentile values = PMM
         PMM = pmm_perc_values.mean()
+        #compares the distributions of outer colonies and inner colonies to check if first step of normalisation is required
         df1 = df_pmm.xs((c1), axis =1, drop_level=False)
         arA=np.array(df1)
         arA= np.array(arA).flatten()
@@ -186,9 +193,11 @@ if complete:
         arB=np.array(df2)
         arB= np.array(arB).flatten()
         w, p = ranksums(arA, arB)
+        # if siginificantly different performs the first step and second step. 
         if p < 0.05:
             print("Different Dist")
             for ind, j in zip(m.index,range(len(ar2))):
+                # for each colony within the outer two edges this calculates the median of the row and column in which they are located
                 if ind[0] == 1 or ind[0] == rlen or ind[1] == 1 or ind[1] == clen or ind[0] == 2 or ind[0] == (rlen-1) or ind[1] == 2 or ind[1] == (clen-1):  
                     if ind[0] == 1:
                         p_median_list_1 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[0] == 1]
@@ -214,12 +223,17 @@ if complete:
                     elif ind[1] == (clen-1):
                         p_median_list_47 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[1] == (clen-1)]
                         p_median = np.nanmedian(p_median_list_47)
+                     # colonys within the outer two edges are then scaled such that the median of the row or column are equal to the PMM
+                    # It then scales such that the the PMM is equal the median colony size of the entire datatset.
                     ar2[j] = (((ar2[j])*(PMM/p_median))*(m_medain/PMM))
-                    
+                # If colonies are within the centre of the plate this scales such that the the PMM is equal
+                # the median colony size of the entire datatset.    
                 elif ind[0] != 1 or ind[0] != rlen or ind[1] != 1 or ind[1] != clen or ind[0] != 2 or ind[0] != (rlen-1) or ind[1] != 2 or ind[1] != (clen-1):
                     ar2[j] = ((ar2[j])*(m_medain/PMM))
             ar2.shape = (mlen,1)
             ardf = np.concatenate((ardf,ar2), axis=1)
+        # if outer edge and inner colonies are not signficantly different 
+        # then just scales entire plate such that the PMM is equal to the median colony size of entire dataset
         else:
             print(c1,"Same Dist")
             for ind, j in zip(m.index,range(len(ar2))):
@@ -240,14 +254,19 @@ if complete:
     ardf.to_csv(otptfile+"_Normalised.csv")
     elementz = st.info("Z Score Analysis Running...")
     def z_score_method(df):
+        #performs z-score test and between replicates of same mutant in 
+        # same condition plate and takes the absolute value of the z-score value
         z = np.abs(stats.zscore(df))
         threshold = 1.4
         outlier = []
-        index=0
+        #goes through each z-score value and position 
         for i, v in enumerate(z):
+            #if nan then continue
             if np.any(v) == 'nan':
                 continue
             else:
+                #if the z-score value is greater than the threshold then 
+                # it is an outlier and the postion is appended to 'outlier' list
                 if v > threshold:
                     outlier.append(i)
                 else:
@@ -256,30 +275,28 @@ if complete:
     conditions = {x[0:2] for x in ardf.columns}
     replicate = {x[0:4] for x in ardf.columns}
     Plate_level = pd.DataFrame(index=ardf.index)
-    #zero_count = pd.DataFrame(columns=['Plate','Condition','Replicate','Batch','Normal','Bigger','Smaller',
-    #                            'NaN','% Normal','% Bigger','% Smaller',
-    #                            '% Zero','% True Zero','% NaN'])
     ABSN = pd.DataFrame(index=ardf.index)
     for c in sorted(conditions):
         df1 = ardf.xs((c), axis =1, drop_level=False)
         ar1=np.array(df1)
+        #makes array that matches the colony size data, however instead of values is all N's for Normal
         ar2=np.full(np.shape(ar1), "N")
-        for j in range(len(ar1)):
-            #if np.all(ar1[j]) == 0:
-            #    for l, vs in enumerate(ar1[j]):
-            #        if vs == 0:
-            #            ar2[j][l] = "Z"
-            #if np.any(ar1[j]) == 0:
-            #    for l, vs in enumerate(ar1[j]):
-            #        if vs == 0:
-            #            ar2[j][l] = "T"        
+        #iterates through row of the columns array.
+        for j in range(len(ar1)):     
+            #iterates through the position and value of row 
             for l, vs in enumerate(ar1[j]):
+                #if the value is nan, the matching position in the N array is changed to an X
                 if str(vs) == "nan":
                     ar2[j][l] = "X" 
+            #if all the replicates in the row are 0 then the row is skipped 
             if np.all(ar1[j]) == 0:
                 continue
-            else: 
+            else:
+                #performs the z-score method for the replicates and makes list of the outliers 
                 outlier = z_score_method(ar1[j])
+                #if there are outliers then it will find the mean of the replicates and then look 
+                # at the positions specified as outliers and see if they are larger than the mean
+                #  or smaller and designated an B or S accordingly in the N's array.
                 if outlier != None:
                     if len(outlier) > 0:
                         mean = np.nanmean(ar1[j])
@@ -287,6 +304,7 @@ if complete:
                             ar2[j][outlier] ="S"
                         else:
                             ar2[j][outlier]="B"
+        #the array of Ns, Bs, Ss and Xs are formatted and saved as a df.
         ar_df = pd.DataFrame(ar2, index=ardf.index)
         ABSN = pd.concat([ABSN, ar_df], axis=1)
     ABSN.columns = (pd.MultiIndex.from_tuples(sorted(ardf.columns)))
@@ -295,6 +313,9 @@ if complete:
                                 'NaN','% Normal','% Bigger','% Smaller','% NaN'])
     replicate = {x[0:4] for x in ABSN.columns}
     rounds = 0
+    #iterates through every column of the dataset and counts the N, B, S 
+    # and X values then calculates the percentage of the plate they represent
+    #these are then appended into the empty dataset for each plate condition replicate and batch. 
     for r in sorted(replicate):
         rounds = rounds + 1
         print(rounds,r)
@@ -303,10 +324,8 @@ if complete:
         count_S = int(np.count_nonzero(ar1 == "S", axis=0))
         count_B = int(np.count_nonzero(ar1 == "B", axis=0))
         count_N = int(np.count_nonzero(ar1 == "N", axis=0))
-        #count_TZ = int(np.count_nonzero(ar1 == "T", axis=0))
         count_nan = int(np.count_nonzero(ar1 == "X", axis=0))
         total = (count_S+count_N+count_B+count_nan)
-        #TZ_perc = (count_TZ/total)*100
         B_perc = (count_B/total)*100
         S_perc = (count_S/total)*100
         N_perc = (count_N/total)*100
@@ -330,22 +349,29 @@ if complete:
     elif "Z_Count" in st.session_state:
         st.session_state.Z_Count = zero_count
     elementmwp = st.info("Mann Whitney Plate Level Analysis Running...")
-    plates = {x[0:2] for x in ardf.columns}
+    ardf_swapped = st.session_state.normalised_dataset
+    ardf_swapped.columns = ardf_swapped.columns.swaplevel(2,3)
+    plates = {x[0:3] for x in ardf_swapped.columns}
     Mann_whit_all = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate 1',
                                       'Replicate 2','U-statistic', 'P-Value'])
+    # splits and iterates by plate, condition.
     for p in sorted(plates):
-        df3 = ardf.xs((p), axis =1, drop_level=False)
+        df3 = ardf_swapped.xs((p), axis =1, drop_level=False)
         ar1 = np.array(df3)
         for i in list(range(0,len(df3.columns))):
             for j in list(range(0,len(df3.columns))):
+                #compares columns that arent the same in pairs
                 if i != j:
+                    #takes the whole set of values then removes nan values and the corresponding values in the paired set
+                    #This allows the mannwhitneyu to work
                     rep1 = ar1[:,i]
                     rep2 = ar1[:,j]
                     rep1 = rep1[~np.isnan(rep1)]
                     rep2 = rep2[~np.isnan(rep2)]  
                     u_statistic, p_value = stats.mannwhitneyu(rep1,rep2)
-                    name = (df3.columns[i][0],df3.columns[i][1],df3.columns[i][3],
-                                df3.columns[i][2], df3.columns[j][2],u_statistic, p_value)
+                    #sets all into a df for output.
+                    name = (df3.columns[i][0],df3.columns[i][1],df3.columns[i][2],
+                                df3.columns[i][3], df3.columns[j][3],u_statistic, p_value)
                     columns = list(Mann_whit_all)
                     data = []
                     zipped = zip(columns, name)
@@ -354,6 +380,7 @@ if complete:
                     Mann_whit_all = Mann_whit_all.append(data, True)
     Mann_whit_all = Mann_whit_all.set_index(['Replicate 1','Plate','Condition','Batch'])
     Mann_whit_all = Mann_whit_all.sort_index(0)
+    #averages out the p-values to produce p-value mean for each replicate
     Pmean = Mann_whit_all.groupby(level=[0,1,2,3]).mean()
     Pmean = Pmean.reset_index()
     Pmean = Pmean.rename(columns={"Replicate 1":"Replicate","U-statistic":'Mean U-Stat',"P-Value":'Mean P-Value'})
@@ -370,11 +397,15 @@ if complete:
     Pmean = Pmean.set_index(['Condition','Plate','Batch','Replicate'])
     cond2 = {x[0:3] for x in Pmean.index}
     P_var = pd.DataFrame(columns=['Plate','Condition','Batch','Variance U-Stat','Variance P-Value'])
+    #iterates through dataset splitting by plate, condition and batch number.
     for c2 in sorted(cond2):
         df1= Pmean.xs((c2), axis =0, drop_level=False)
         ar1 = np.array(df1)
+        #calculates the variance between the replicates p-value means.
         pvar_val = np.nanvar(ar1[:,0])
+        #calculates the variance between the replicates u-value means.
         uvar_val = np.nanvar(ar1[:,1])
+        #sets information into a dataframe
         name = (df1.index[0][1],df1.index[0][0],df1.index[0][2],pvar_val,uvar_val)
         columns = list(P_var)
         data = []
@@ -395,10 +426,11 @@ if complete:
     elif "MW_cond_Results" in st.session_state:
         st.session_state.MW_cond_Results = P_var_cond
     elementv = st.info("Condition Level Variance Analysis Running...")
-    ardf.columns = ardf.columns.swaplevel(2, 3)
+    #makes df with same index as the input normalised dataset file.
     Var_DF = pd.DataFrame(index=ardf.index)
     conditions = {x[0:3] for x in ardf.columns}
     rounds = 0 
+    #splits into source plate, batch and condition, then compares the variance between the replicates.
     for c in sorted(conditions):
         rounds = rounds + 1
         print(rounds)
@@ -407,17 +439,22 @@ if complete:
         ar2 = np.array([])
         for j in range(0,len(ar1)):
             #The variance of each row is calculated and added to the variance column 
+            #if all values are nan then variance is set to nan.
             if np.count_nonzero(~np.isnan(ar1[j])) == 0:
                 var = "nan"
+            #otherwise calculates variance ingnoring nans
             else:
                 var = np.nanvar(ar1[j])
+            #appends variance to array of variances
             ar2 = np.append(ar2, var)
         ar_df = pd.DataFrame(ar2, index=ardf.index)
         Var_DF = pd.concat([Var_DF, ar_df], axis=1)
+    #sets column names to the source plate, batch and condition.
     Var_DF.columns = (pd.MultiIndex.from_tuples(sorted(conditions)))
     ave_Var_plate = pd.DataFrame(columns=['Condition','Batch','Plate','Average Variance'])
+    #calculates the average variance for each condition.
     for f in Var_DF.columns:
-        name = (f[1],f[2],f[0],np.nanmean(Var_DF[f].values.astype(float)))
+        name = (f[1],f[0],f[2],np.nanmean(Var_DF[f].values.astype(float)))
         columns = list(ave_Var_plate)
         data = []
         zipped = zip(columns, name)
@@ -427,6 +464,7 @@ if complete:
     ave_Var_plate = ave_Var_plate.set_index(['Condition',"Batch",'Plate'])
     cond3 = {x[0:2] for x in ave_Var_plate.index}
     ave_Var_cond = pd.DataFrame(columns=(['Condition','Batch','Average Variance']))
+    #calculates mean across different source plates and produces df.
     for cd3 in sorted(cond3):
         dfVC = ave_Var_plate.xs(cd3, axis =0, drop_level=False)
         name = (cd3[0],cd3[1],dfVC['Average Variance'].mean())
@@ -451,6 +489,9 @@ if complete:
                                    'Normality Threshold 40%','Normality Threshold 50%'
                                    ,'Normality Threshold 60%','Normality Threshold 80%'])
     z_count_array = np.array(zero_count)
+    #Checks percentage normality for each condition less than thresholds
+    #  and marks as F for fail or greater than threshold and marks as P for pass 
+    # and creates dataset of Ps and Fs for the various thresholds
     plt = {x[0:5] for x in zero_count.index}
     for r,p in zip(range(len(z_count_array)),sorted(plt)):
         if z_count_array[r][4] < 20:
@@ -490,6 +531,7 @@ if complete:
     Pmean = pd.read_csv(otptfile+"_Mann_Whitney_Plate_level.csv")
     Pmean = Pmean.set_index(['Condition','Plate','Replicate','Batch'])
     thres_ar = [x for x in sorted(Pmean['Mean P-Value']) if x > 0]
+    # takes thresholds at intervals across the achieved values
     thres_array = (sorted(thres_ar)[(int(len(thres_ar)*(1/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(4/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(8/24)))],
@@ -505,6 +547,9 @@ if complete:
                                    'MW Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     Pmean_array = np.array(Pmean)
     plt2 = {x[0:5] for x in Pmean.index}
+    #Checks mean p-value for each condition less than thresholds
+    #  and marks as F for fail or greater than threshold and marks as P for pass 
+    # and creates dataset of Ps and Fs for the various thresholds
     for r,p in zip(range(len(Pmean_array)),sorted(plt2)):
         
         if Pmean_array[r][1] < thres_array[5]:
@@ -538,10 +583,11 @@ if complete:
         zipped = zip(columns, name)
         a_dictionary = dict(zipped)
         data.append(a_dictionary)
-        mwp_p_f = mwp_p_f.append(data, True)                              
+        mwp_p_f = mwp_p_f.append(data, True)    
     mwp_p_f = mwp_p_f.sort_values(['Condition','Plate'])
     mwp_p_f = mwp_p_f.reset_index(drop=True)
     mwp_p_f.to_csv(otptfile+"_MW_Pass_Fail.csv", index=False)
+    #Merges the two datasets together and shows percentage fails across both tests                          
     p_f_merge = pd.merge(mwp_p_f,abnorm_p_f)
     p_f_merge['Percentage Fails'] = 'N'
     for index, row in p_f_merge.iterrows():
@@ -577,6 +623,7 @@ if complete:
             dfpfm.loc[:,('Replicates within Condition/Plate')] = str(replist)
         p_f_merge_reps = p_f_merge_reps.append(dfpfm)
     p_f_merge_reps.to_csv(otptfile+"_Pass_Fail.csv", index=False)
+    ### producing the bar plot for plate level tests
     Pass_Fail = p_f_merge_reps
     Pass_Fail['Plate'] = pd.to_numeric(Pass_Fail['Plate'])
     Pass_Fail = Pass_Fail.set_index(['Condition','Plate'])
@@ -584,6 +631,10 @@ if complete:
     bar = pd.DataFrame(columns = ['Condition','Plate','Batch','Replicates', 'Threshold','Percentage'])
     for p5 in sorted(plt5):
         dfpf14 = Pass_Fail.xs((p5), axis=0, drop_level=False)
+        #splits the data by condition and source plate number so number of F's 
+        # can be counted for each threshold across replicates to produce percentage
+        # fails by dividing by overall count and multiplying by 100. This then allows
+        # the plotting of bar charts with percentage of plates within a condition failing at certain thresholds
         for cols in dfpf14.columns:
             if cols[0] == 'M' or cols[0] == 'N':
                 failed = ((len(dfpf14[dfpf14[cols] == 'F'])/dfpf14[cols].count())*100)
@@ -600,6 +651,7 @@ if complete:
     b3 = list(sorted(b3))
     bar['Percentage'] = pd.Categorical(bar['Percentage'], categories=b3,ordered=True)
     sns.set_theme(style="whitegrid")
+    #stacks the percentages so you can see the how much each percentage contributes at different thresholds.
     b = sns.displot(bar, x='Threshold', hue='Percentage',
                     multiple='stack', legend = True, palette=sns.color_palette("Spectral_r",len(b3)))
     b.set_axis_labels("", "Count of Condition With % Plates Lost")
@@ -615,6 +667,7 @@ if complete:
     Pmean = pd.read_csv(otptfile+"_MW_Condtion_Level.csv")
     Pmean = Pmean.set_index(['Condition','Batch'])
     thres_ar = [x for x in sorted(Pmean['Mean Variance P-Value']) if x > 0]
+    # takes thresholds at intervals across the achieved values
     thres_array = (sorted(thres_ar)[(int(len(thres_ar)*(1/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(4/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(8/24)))],
@@ -630,6 +683,9 @@ if complete:
                                    'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     Pmean_array = np.array(Pmean)
     plt2 = {x[0:5] for x in Pmean.index}
+    #Checks mean Variance p-value for each condition greater than thresholds
+    #  and marks as F for fail or lower than threshold and marks as P for pass 
+    # and creates dataset of Ps and Fs for the various thresholds
     for r,p in zip(range(len(Pmean_array)),sorted(plt2)):
         if Pmean_array[r][1] > thres_array[5]:
             PF5 = 'F'
@@ -668,6 +724,7 @@ if complete:
     ave_Var_cond = pd.read_csv(otptfile+"_Average_Variance.csv")
     ave_Var_cond = ave_Var_cond.set_index(['Condition','Batch'])
     thres_ar = [x for x in sorted(ave_Var_cond['Average Variance']) if x > 0]
+     # takes thresholds at intervals across the achieved values
     thres_array = (sorted(thres_ar)[(int(len(thres_ar)*(1/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(4/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(8/24)))],
@@ -684,6 +741,9 @@ if complete:
                                    'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     varc_array = np.array(ave_Var_cond)
     plt2 = {x[0] for x in ave_Var_cond.index}
+    #Checks mean Variance for each condition greater than thresholds
+    #  and marks as F for fail or lower than threshold and marks as P for pass 
+    # and creates dataset of Ps and Fs for the various thresholds
     for r,p in zip(range(len(varc_array)),sorted(ave_Var_cond.index)):
         if varc_array [r] > thres_array[0]:
             PF0 = 'F' 
@@ -722,9 +782,11 @@ if complete:
     Pass_Fail = mwc_p_f
     Pass_Fail = Pass_Fail.set_index(['Condition','Batch'])
     bar = pd.DataFrame(columns = ['Condition','Batch', 'Threshold','Percentage'])
+    #iterates over rows by the condition and batch
     for p5 in sorted(Pass_Fail.index):
         dfpf14 = Pass_Fail.xs((p5), axis=0, drop_level=False)
         dfpf14 = pd.DataFrame(dfpf14)
+        #transposes the data so number of F's can be counted to produce percentage fails by dividing by overall count and multiplying by 100.
         dfpf14 = pd.DataFrame.transpose(dfpf14)
         for cols in dfpf14.columns:
             if cols[0] == 'M' or cols[0] == 'N' or cols[0] == 'A':
@@ -743,7 +805,7 @@ if complete:
     bar['Percentage'] = pd.Categorical(bar['Percentage'], categories=b3,ordered=True)
     sns.set_theme(style="whitegrid")
     b = sns.displot(bar, x='Threshold', hue='Percentage',
-                    multiple='stack', legend = False, palette=("White","orange"))
+                    multiple='stack', legend = False, palette=("white","orange"))
     b.set_axis_labels("", "Count of Conditions Lost")
     b.set_xticklabels(rotation=90)
     col2.write("Condition Level: Mann Whitney")
@@ -755,9 +817,11 @@ if complete:
     Pass_Fail = varc_p_f
     Pass_Fail = Pass_Fail.set_index(['Condition','Batch'])
     bar = pd.DataFrame(columns = ['Condition','Batch', 'Threshold','Percentage'])
+    #iterates over rows by the condition and batch
     for p5 in sorted(Pass_Fail.index):
         dfpf14 = Pass_Fail.xs((p5), axis=0, drop_level=False)
         dfpf14 = pd.DataFrame(dfpf14)
+        #transposes the data so number of F's can be counted to produce percentage fails by dividing by overall count and multiplying by 100.
         dfpf14 = pd.DataFrame.transpose(dfpf14)
         for cols in dfpf14.columns:
             if cols[0] == 'M' or cols[0] == 'N' or cols[0] == 'A':
@@ -776,7 +840,7 @@ if complete:
     bar['Percentage'] = pd.Categorical(bar['Percentage'], categories=b3,ordered=True)
     sns.set_theme(style="whitegrid")
     b = sns.displot(bar, x='Threshold', hue='Percentage',
-                    multiple='stack', legend = False, palette=("White","orange"))
+                    multiple='stack', legend = False, palette=("white","orange"))
     b.set_axis_labels("", "Count of Conditions Lost")
     b.set_xticklabels(rotation=90)
     col3.write("Condition Level: Variance")

@@ -56,10 +56,6 @@ gene_names = st.sidebar.file_uploader("Upload Cluster File:", accept_multiple_fi
 Ave_datasets = st.sidebar.radio(
     "Which datasets would you like to compare:",
     ('Averaged','Non-Averaged'))
-#def names_path_changed():
-#        if st.session_state.new_name_path:
-#            st.session_state.name_path = st.session_state.new_name_path
-#gene_names = st.sidebar.text_input(label="Input Path to Cluster File:", on_change=names_path_changed, key="new_name_path")
 complete = st.sidebar.button(label="Begin!")
 if complete:
     if gene_names:
@@ -75,8 +71,6 @@ if complete:
                 outdens = os.path.expanduser(outdens)
                 #Open the operon cluster and s-score files
                 df = Op_Clus
-                #df['Cluster_no'] = [x.split('_')[3] for x in df['Cluster']]
-                #df = df.drop(columns='Cluster')
                 df = df[['Gene', 'Cluster']]
                 ar1 = np.array(df)
                 df_14 = inpt
@@ -101,18 +95,22 @@ if complete:
                 ar_merge = np.array(df_merge)
                 mainlist = list(range(0,len(df_merge)))
                 for i,j in it.combinations(mainlist, 2):
+                    #ignores comparison with self
                     if i != j:
+                        #if in same cluster list all s-scores
                         if str(ar_merge[i][-1]) == str(ar_merge[j][-1]):
                             p = list(ar_merge[i,1:-1])
                             p2 = list(ar_merge[j,1:-1])
                             data1 = []
                             data2 = []
+                            #ensures nans are removed as well as the corresponding value for the other list.
                             for itemp,indexp,itemp2, in zip(p,range(len(p)),p2):
                                 if str(itemp) != "nan" and str(itemp2) != "nan":
                                     data1.append(float(itemp))
                                     data2.append(float(itemp2))
                             n = str(ar_merge[i,0:1])
                             n2 = str(ar_merge[j,0:1])
+                            #calculates cosine similarity between the phenotypic profiles of s-scores for the two genes and adds to a df.
                             cosine_similarity = 1 - spatial.distance.cosine(data1, data2)
                             name = np.array([n, n2, cosine_similarity, "TRUE"],dtype=object)
                             df_co_sim_R_T = df_co_sim_R_T.append(pd.DataFrame(name).T)
@@ -122,17 +120,18 @@ if complete:
                 random.seed(1)
                 def random_pairs(number_list): 
                     return [number_list[i] for i in random.sample(range(len(number_list)), 2)] 
+                #selects twice as many pairs as needed for different operons as likely some
+    # will come up as the same and want to later syphon down to same number of comparisions as for same operon.
                 n = (2*len(df_co_sim_R_T))
                 numbers = list(range(len(df_merge)))
                 rp = [random_pairs(numbers) for i in range(n)]
                 df_co_sim_R_F = pd.DataFrame()
-                #for i in list(random.sample(range(len(df_merge)), len(df_co_sim_R_T))):
-                #    for j in list(random.sample(range(len(df_merge)), 20)): 
                 for k in range(n):
                         i = rp[k][0]
                         j = rp[k][1]
                         d1 = list(ar_merge[i,-1:])
                         d2 = list(ar_merge[j,-1:])
+                        #if operon clusters do not match.
                         if d1 != d2:
                             p = list(ar_merge[i,1:-1])
                             p2 = list(ar_merge[j,1:-1])
@@ -200,6 +199,7 @@ if complete:
                 T = list(df_FP['TRUE'])
                 T = [x for x in T if str(x) != 'nan']
                 df_thres = pd.DataFrame()
+                #calculate true and false positives and negatives at different thresholds for AUC and ROC curve production.
                 for i in np.arange(-1, 1.1, 0.1):
                     TP = 0
                     TN = 0
@@ -230,8 +230,6 @@ if complete:
                 ax.set_title('ROC curve for Assigning S-scores to Genes of Same and Different Operons')
                 AUC_txt = f'AUC {round(auc(spec_rate, sens_rate),4)}'
                 fig.suptitle(AUC_txt, fontsize=12, fontweight='bold')
-                #st.pyplot(fig,ax)
-                #plt.savefig(outroc, bbox_inches='tight')
                 return df_T_F_2,fig,ax,sens_rate,spec_rate
 
             Op_Clus1 = gene_names2
@@ -251,6 +249,7 @@ if complete:
             densdf2,fig_2,ax_2,sens_rate_2,spec_rate_2 = Cosine_Similarity(Op_Clus1,inpt2,outpt2,outroc2,outdens2)
             sns.set_theme(style="white")
             fig1 = plt.figure()
+            # Produce density plot for similarity scores between same operons for the two datasets
             sns.kdeplot(densdf1['TRUE'], shade=False, color="b", label="Original Dataset")
             sns.kdeplot(densdf2['TRUE'], shade=False, color="r", label=("Curated Dataset"))
             plt.xlabel("Cosine Similarity Score")
@@ -260,10 +259,7 @@ if complete:
             cola,colb,colc =st.columns((1,3,1))
             colb.pyplot(fig1)
             col3a, col3, col4 = st.columns((1,3,1))
-            #col3.write("Original Dataset")
-            #col3.pyplot(fig_1,ax_1)
-            #col4.write("Curated Dataset")
-            #col4.pyplot(fig_2,ax_2)
+            #produce the ROC plot for the two datasets
             sns.set_theme(style="white")
             fig, ax = plt.subplots()
             ax.plot(spec_rate_1, sens_rate_1,color='r',label="Original")
@@ -275,8 +271,6 @@ if complete:
             ax.set_title('ROC curve for Assigning S-scores to Genes of Same and Different Operons')
             AUC_txt = f'Original AUC: {round(auc(spec_rate_1, sens_rate_1),4)}'
             AUC_txt2 = f'Curated AUC: {round(auc(spec_rate_2, sens_rate_2),4)}'
-            #fig.suptitle(AUC_txt, fontsize=12, fontweight='bold')
-            #fig.suptitle(AUC_txt2, fontsize=12, fontweight='bold')
             fig.text(0.15,0.8,AUC_txt,color='r')
             fig.text(0.15,0.75,AUC_txt2,color='b')
             col3.pyplot(fig)

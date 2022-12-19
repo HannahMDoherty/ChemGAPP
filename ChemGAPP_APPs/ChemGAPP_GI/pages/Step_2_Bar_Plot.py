@@ -1,4 +1,5 @@
 
+from re import M
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -73,19 +74,12 @@ if st.session_state.plot:
     element = col2.pyplot(st.session_state.plot)
 complete = st.sidebar.button(label="Begin!")
 if complete:
+    #if already run once, will rerun again after you click download.
     if st.session_state.plot:
         element.empty()
         def GI_BarPlot(primary_gene):
-            #directory = os.path.expanduser(Path)
-            #files = []
-            #for filename in os.listdir(directory):
-            #    f = os.path.join(directory, filename)
-            #    # checking if it is a file
-            #    if f.endswith("Interaction_Scores.csv"):
-            #        if os.path.isfile(f):
-            #            print((f.split('/')[-1].split("_Interaction_Scores.csv")[0]))
-            #            files.append(f)
-            m_s = None          
+            m_s = None 
+            #adds the name of the secondary gene into a column.         
             for a in uploaded_files:
                 if m_s is None:
                     m_s = pd.read_csv(a,index_col=[0])
@@ -94,8 +88,9 @@ if complete:
                     m_s2 = pd.read_csv(a,index_col=[0])
                     m_s2['Gene'] = a.name.split('/')[-1].split("_Interaction_Scores.csv")[0]
                     m_s = pd.concat([m_s,m_s2], axis=0)
-            #st.write(m_s)
+            
             secondary_genes = set(m_s.Gene.values)
+            # performs ANOVA and Tukey HSD between the expected and experimental double knockout fitness ratios
             p_value_list = []
             pairs_list = []
             for i in sorted(secondary_genes):
@@ -109,8 +104,7 @@ if complete:
                 pairs_list.append(pairs)
                 pvalues = list(stats1['p-value'])
                 p_value_list.append(pvalues)
-            #st.write(p_value_list,pairs_list)
-
+            #plots the bar plots, split by the secondary gene
             sns.set_theme(style="white")
             g = sns.catplot(data=m_s,kind="bar", alpha=0.8, height=6,col="Gene",col_wrap=15,aspect=.4,capsize=.15,errwidth=0.5)
             g.set_xticklabels([])
@@ -127,6 +121,7 @@ if complete:
 
             for ax in g.axes:
                 change_width(ax, 0.975)
+                #sets colours of bars based on colour values picked.
                 for p,i in zip(ax.patches,range(len(ax.patches))):
                         if i == 0:
                             p.set_color(color1)
@@ -136,6 +131,7 @@ if complete:
                             p.set_color(color3)
                         if i == 3:
                             p.set_color(color4)
+            #annotates the anova p-values for each secondary gene plot.
             for ax,pairs,pvalues in zip(g.axes,pairs_list,p_value_list):
                 boxax = sns.boxplot(showmeans=False,
                         meanline=False,
@@ -151,8 +147,8 @@ if complete:
                 annotator.set_pvalues(pvalues)
                 annotator.configure(line_width = 1)
                 annotator.annotate()
-                
             g.set_titles("{col_name}",size=15,y=-0.08)
+            #adds legend and matches colours to slider colours selected.
             eight = mlines.Line2D([], [], color=color1, marker='s', ls='', label=primary_gene,ms=15)
             nine = mlines.Line2D([], [], color=color2, marker='s', ls='', label="Secondary Gene",ms=15)
             ten = mlines.Line2D([], [], color=color3, marker='s', ls='', label="Double Expected",ms=15)
@@ -180,6 +176,7 @@ if complete:
         elif "plot" in st.session_state:
                 st.session_state.plot = g
     else:
+        #repeats above code such that plots always load after downloading plot.
         def GI_BarPlot(primary_gene):
             m_s = None          
             for a in uploaded_files:

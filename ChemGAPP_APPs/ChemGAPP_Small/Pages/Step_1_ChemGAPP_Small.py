@@ -90,19 +90,17 @@ The default palette is `Spectral`.
     * Do not try save an image until all plots are produced.
 
 """)
+
+# makes sure all figures saved in session state deleted so program starts from scratch when options are changed
 def new_click():
     if 'figures' not in st.session_state:
         pass
     else:
         del st.session_state["figures"]
-        
-def del_pickle(fnm):
-    if st.session_state.figures:
-        del st.session_state["figures"]
-    dir = os.path.abspath(os.getcwd())
-    for fa in fnm:
-        path = os.path.join(dir, fa)
-        os.remove(path)
+        del st.session_state["conds"]
+        del st.session_state["fnames"]
+
+# makes temp folder for the figure files so that they can be downloaded as pdfs and can be reloaded when other files downloaded.         
 par_dir = os.path.abspath(os.getcwd())
 new_dir = "Temp"
 temp_path = os.path.join(par_dir, new_dir)
@@ -111,27 +109,40 @@ try:
 except:
     pass
 
+# checks if streamlit needs to reload figures after clicking the download button 
+# following first full run through, as clicking the download button makes 
+# streamlit re-run from the top and we dont want to lose our files/images
+# if programme hasnt been run yet then there will be no figures in the session state,
+# therefore all files in the temp folder will be deleted as these may be from a previous run.
+
+# must set the session states as empty if not yet, set so streamlit has them intialised for later mentions
 if 'figures' not in st.session_state:
         st.session_state.figures = []
+        st.session_state.conds = []
+        st.session_state.fnames = []
         for f in sorted(os.listdir(temp_path)):
             if f.endswith(".pdf"): 
                 path = os.path.join(temp_path, f)
                 os.remove(path)
+# if it has been run then it reloads the data as it was displayed before clicking a 'download' button.
 if st.session_state.figures:
     my_expandera = st.expander(label="Scored Dataset", expanded=False)
     my_expandera.write(st.session_state.scored_dataset, header=[0,1,2])
-    elwarn2 = st.warning("Preparing plots for download, do not download until ready.")
+    elwarn2 = st.warning("Preparing plots for download, do not click 'Download' until ready.")
     for fig,i,c,fna in zip(st.session_state.figures, range(len(st.session_state.figures)),st.session_state.conds,st.session_state.fnames):
+        # i == 0 is the heatmap as this is the first displayed and has different headers and layout
         if i == 0:
             myexp = st.expander(label="Heatmap:", expanded=False)
             col1a,col1b,col1c = myexp.columns((1,4,1))
             col1b.pyplot(fig)
+            #finds the path to the temporary files such that they can be saved as an io.BytesIO() meaning they can be downloaded as a PDF.
             pathfna = os.path.join("Temp", fna)
             with open(pathfna,'rb') as fid:
                 ax = pickle.load(fid)
                 imga = io.BytesIO()
             plt.savefig(imga, format='pdf', bbox_inches='tight')
             fn =("ChemGAPP_Heatmap.pdf")
+            #produces a download button to download image as pdf
             myexp.download_button(
                             label="Download image",
                             data=imga,
@@ -139,7 +150,9 @@ if st.session_state.figures:
                             mime="image/pdf"
                          )
             st.write(str(st.session_state.plot_type)+"s")   
+        # everything else is the bar or swarm plots
         else:
+            # sets into two column layout if width of figures in smaller than 10.
             if st.session_state.width_type < 10:
                 a = i
                 if (a % 2) != 0:
@@ -172,6 +185,7 @@ if st.session_state.figures:
                          file_name=fn,
                          mime="image/pdf"
                       )
+            # set in one column layout if width of figure >= 10
             if st.session_state.width_type >= 10:
                 myexpand = st.expander(label=c.replace(",","."), expanded=False)
                 myexpand.pyplot(fig)
@@ -189,6 +203,9 @@ if st.session_state.figures:
                     mime="image/pdf")
     elwarn2.empty()
     st.success("Images ready to download!")
+
+# all these new definitions until next comment make it such that if any setting is changed
+# the session states for the figures are deleted and the programme run from scratch, without losing the other settings already set.
 if "iris_type" not in st.session_state:
         st.session_state.iris_type = []
 def new_iris_changed():
@@ -198,6 +215,8 @@ def new_iris_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "plot_type" not in st.session_state:
         st.session_state.plot_type = []
@@ -208,6 +227,8 @@ def new_plot_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "group_type" not in st.session_state:
         st.session_state.group_type = []
@@ -218,6 +239,8 @@ def new_group_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "width_type" not in st.session_state:
         st.session_state.width_type = []
@@ -228,6 +251,20 @@ def new_width_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
+if "heatsize_type" not in st.session_state:
+        st.session_state.heatsize_type = []
+def new_heatsize_changed():
+        if st.session_state.new_heatsize_type:
+            st.session_state.heatsize_type = st.session_state.new_heatsize_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "height_type" not in st.session_state:
         st.session_state.height_type = []
@@ -238,6 +275,32 @@ def new_height_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
+if "heat_width_type" not in st.session_state:
+        st.session_state.heat_width_type = []
+def new_heatwidth_changed():
+        if st.session_state.new_heatwidth_type:
+            st.session_state.heat_width_type = st.session_state.new_heatwidth_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
+if "heat_height_type" not in st.session_state:
+        st.session_state.heat_height_type = []
+def new_heatheight_changed():
+        if st.session_state.new_heatheight_type:
+            st.session_state.heat_height_type = st.session_state.new_heatheight_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "colour_type" not in st.session_state:
         st.session_state.colour_type = []
@@ -248,6 +311,8 @@ def new_colour_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "in_type" not in st.session_state:
         st.session_state.in_type = []
@@ -258,6 +323,8 @@ def new_in_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "out_type" not in st.session_state:
         st.session_state.out_type = []
@@ -268,6 +335,8 @@ def new_out_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 
 if "info_type" not in st.session_state:
@@ -279,6 +348,8 @@ def new_info_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "WT_type" not in st.session_state:
         st.session_state.WT_type = []
@@ -289,6 +360,8 @@ def new_WT_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "rote_type" not in st.session_state:
         st.session_state.rote_type = []
@@ -299,6 +372,8 @@ def new_rote_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 
 if "circ_type" not in st.session_state:
@@ -310,6 +385,8 @@ def new_circ_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "xlab_type" not in st.session_state:
         st.session_state.xlab_type = []
@@ -320,6 +397,8 @@ def new_xlab_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "ylim_type" not in st.session_state:
         st.session_state.ylim_type = []
@@ -330,6 +409,8 @@ def new_ylim_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "ylow_type" not in st.session_state:
         st.session_state.ylow_type = []
@@ -340,6 +421,8 @@ def new_ylow_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "yhigh_type" not in st.session_state:
         st.session_state.yhigh_type = []
@@ -350,6 +433,8 @@ def new_yhigh_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "pal_type" not in st.session_state:
         st.session_state.pal_type = "icefire"
@@ -360,6 +445,8 @@ def new_pal_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "pal2_type" not in st.session_state:
         st.session_state.pal2_type = "bwr_r"
@@ -370,6 +457,8 @@ def new_pal2_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "remove_type" not in st.session_state:
         st.session_state.remove_type = []
@@ -380,6 +469,8 @@ def new_remove_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
 if "order_type" not in st.session_state:
         st.session_state.order_type = []
@@ -390,7 +481,10 @@ def new_order_changed():
                 pass
             else:
                 del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
 
+# various input buttons to upload files or make customisations.
 uploaded_files = st.sidebar.file_uploader("Upload multiple IRIS files", accept_multiple_files=True)
 plate_info_files = st.sidebar.file_uploader("Upload multiple plate information files", accept_multiple_files=True)
 outputfile1 = st.sidebar.text_input("Enter Path and Prefix for Output Files:", on_change=new_out_changed, key="new_out_type")
@@ -472,7 +566,9 @@ colour_palette = st.sidebar.selectbox('Colour Palette for Bar/Swarm Plots:',('ic
  'summer', 'summer_r', 'tab10', 'tab10_r', 'tab20', 'tab20_r', 'tab20b',
  'tab20b_r', 'tab20c', 'tab20c_r', 'terrain', 'terrain_r', 'twilight',
  'twilight_r', 'twilight_shifted', 'twilight_shifted_r', 'viridis', 'viridis_r', 'vlag', 'vlag_r', 'winter', 'winter_r'), on_change=new_pal_changed, key="new_pal_type")
-
+heatsize = st.sidebar.slider('Heatmap Label Size', 0, 10, 4, on_change=new_heatsize_changed, key="new_heatsize_type")
+heat_width = st.sidebar.slider('Heatmap Width', 1, 30, 10, on_change=new_heatwidth_changed, key="new_heatwidth_type")
+heat_height = st.sidebar.slider('Heatmap Height', 1, 30, 10,on_change=new_heatheight_changed, key="new_heatheight_type")
 width1 = st.sidebar.slider('Figure Width', 1, 20, 5, on_change=new_width_changed, key="new_width_type")
 height1 = st.sidebar.slider('Figure Height', 1, 20, 5,on_change=new_height_changed, key="new_height_type")
 if bar_swarm == 'Bar Plot':
@@ -493,36 +589,39 @@ if sety == 'Yes':
 
 complete = st.sidebar.button(label="Begin!",on_click=new_click)
 
+# sets off code only once all settings have ben set and use presses begin.
 if complete:
+    #removes anything saved from previous runs
     del st.session_state["figures"]
+    del st.session_state["conds"]
+    del st.session_state["fnames"]
+    # if user has set which strains to remove this produces a list of the strains split by ;
     if remove_y_n == 'Yes':
         inclstrains = txt.split(";")
+    # if user has set order of strains this produces a list of the strains in prefered order split by ;
     if order_type == 'Yes':
         order_list = order_set.split(";")
+    #sets the chosen iris types and plot type in session state
     if st.session_state.iris_type == []:
         st.session_state.iris_type = iris_type
     if st.session_state.plot_type == []:
         st.session_state.plot_type = bar_swarm
     m = None
+    # cycles through iris files and uses filename to produce column headers.
     for f in uploaded_files:
         g = pd.read_csv(f,
                 comment='#',
                 index_col=[0, 1],
                 sep='\t')
         if m is None:
-            try:
-                m = g[iris_type]
-            except:
-                m = g[iris_type]
+            m = g[iris_type]
+            # replaces commas to periods, since these are not allowed within the filename and dashes to spaces
             m.name = (int(f.name.split('-')[2].split('_')[0]),
                       '-'.join(f.name.split('.')[0].split('-')[:2]).replace(",",".").replace("-"," "),
                       f.name.split('.')[0].split('_')[1])
             m = m.to_frame()
         else:
-            try:
-                m1 = g[iris_type]
-            except:
-                m1 = g[iris_type]
+            m1 = g[iris_type]
             m1.name = (int(f.name.split('-')[2].split('_')[0]),
                       '-'.join(f.name.split('.')[0].split('-')[:2]).replace(",",".").replace("-"," "),
                       f.name.split('.')[0].split('_')[1])
@@ -533,6 +632,7 @@ if complete:
     m = m.apply(pd.to_numeric)
     m = m[sorted(m)]
     m_array = np.array(m)
+    #calculates the size of the inputted plates
     mlen = len(m)
     if mlen == 1536:
         rlen = 32
@@ -547,12 +647,15 @@ if complete:
     n = n.apply(pd.to_numeric)
     n = n[sorted(n)]
     m_ind = m.reset_index()
+    # produces dataframe and array excluding the outer two rows and columns for each plate for plate middle mean (PMM) calculation
     mask = (m_ind['row'] != 1) & (m_ind['row'] != rlen) & (m_ind['column'] != 1) & (m_ind['column'] != clen) & (m_ind['row'] != 2) & (m_ind['row'] != (rlen-1)) & (m_ind['column'] != 2) & (m_ind['column'] != (clen-1))
     df_pmm = m_ind[mask]
     df_pmm = df_pmm.set_index(['row','column'])
+    # produces dataframe and array of the outer two rows and columns for each plate
     df_outer = m_ind[-mask]
     df_outer = df_outer.set_index(['row','column'])
     pmm_array = np.array(df_pmm)
+    #calculates median colony size for the entire dataset
     m_medain = np.nanmedian(m_array)
     df_outer_norm = pd.DataFrame(index=m.index)
 
@@ -560,13 +663,17 @@ if complete:
     ardf = np.zeros((mlen, 1))
     ardf.shape = (mlen,1)
     for c1,c2,i in zip(sorted(df_pmm.columns),sorted(df_outer.columns), range(len(m.columns))):
+        #runs through each plate individually matching the plates for the outer and inner dataframes
         ar1 = pmm_array[:,i]
         ar2 = n_array[:,i]
+        # finds the colony sizes within the 40th and 60th percentiles for PMM calculation
         pmm_40 = np.nanpercentile(ar1, 40)
         pmm_60 = np.nanpercentile(ar1, 60)
         mask2= (ar1 >= pmm_40) & (ar1 <= pmm_60) 
         pmm_perc_values = ar1[mask2]
+        # finds mean of these 40th-60th percentile values = PMM
         PMM = pmm_perc_values.mean()
+        #compares the distributions of outer colonies and inner colonies to check if first step of normalisation is required
         df1 = df_pmm.xs((c1), axis =1, drop_level=False)
         arA=np.array(df1)
         arA= np.array(arA).flatten()
@@ -574,8 +681,10 @@ if complete:
         arB=np.array(df2)
         arB= np.array(arB).flatten()
         w, p = ranksums(arA, arB)
+        # if siginificantly different performs the first step and second step. 
         if p < 0.05:
             for ind, j in zip(m.index,range(len(ar2))):
+                # for each colony within the outer two edges this calculates the median of the row and column in which they are located
                 if ind[0] == 1 or ind[0] == rlen or ind[1] == 1 or ind[1] == clen or ind[0] == 2 or ind[0] == (rlen-1) or ind[1] == 2 or ind[1] == (clen-1):  
                     if ind[0] == 1:
                         p_median_list_1 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[0] == 1]
@@ -601,81 +710,104 @@ if complete:
                     elif ind[1] == (clen-1):
                         p_median_list_47 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[1] == (clen-1)]
                         p_median = np.nanmedian(p_median_list_47)
+                    # colonys within the outer two edges are then scaled such that the median of the row or column are equal to the PMM
+                    # It then scales such that the the PMM is equal the median colony size of the entire datatset.
                     ar2[j] = (((ar2[j])*(PMM/p_median))*(m_medain/PMM))
+                # If colonies are within the centre of the plate this scales such that the the PMM is equal
+                # to the median colony size of the entire datatset. 
                 elif ind[0] != 1 or ind[0] != rlen or ind[1] != 1 or ind[1] != clen or ind[0] != 2 or ind[0] != (rlen-1) or ind[1] != 2 or ind[1] != (clen-1):
                     ar2[j] = ((ar2[j])*(m_medain/PMM))
             ar2.shape = (mlen,1)
+            #adds the column of adjusted scores to the 'normalised' dataframe 
             ardf = np.concatenate((ardf,ar2), axis=1)
+        # if outer edge and inner colonies are not signficantly different 
+        # then just scales entire plate such that the PMM is equal to the median colony size of entire dataset
         else:
             for ind, j in zip(m.index,range(len(ar2))):
                 ar2[j] = ((ar2[j])*(m_medain/PMM))
             ar2.shape = (mlen,1)
             ardf = np.concatenate((ardf,ar2), axis=1)
     ardf = pd.DataFrame(ardf, index=m.index)
+    #removes first column of zero values
     ardf = ardf.iloc[: , 1:]
     ardf.columns = (pd.MultiIndex.from_tuples(sorted(m.columns)))
     ardf = ardf[sorted(ardf)]
     ardf.to_csv(outputfile1+"_Normalised_dataset.csv")
+
+    #renames the plate info file columns and adds row and column to index before sorting by index.
     def plate_info(file):
         p = pd.read_table(file)
-        if len(p.columns) == 5:
-            p.columns = ['row','column','strain','info','normalisation_group']
-            p = p.set_index(['row','column'])
-            p = p.drop(['info','normalisation_group'], axis=1)
-            p = p.sort_index()
         if len(p.columns) == 3:
             p.columns = ['row','column','strain']
             p = p.set_index(['row','column'])
             p = p.sort_index()
+        else:
+            print("Plate information file" + str(file) + "not in correct format.")
         return p
-    
+
+    # looks for digits within the file names so that order of 
+    # plate info files is sorted plate1, plate2, plate3 etc. not plate1, plate10, plate2 etc.
     def atoi(text):
         return int(text) if text.isdigit() else text
     def natural_keys(text):
         return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
+    #adds the plate files to a list
     plate_DFs = []
     for i in plate_info_files:
         p = plate_info(i)
         plate_DFs.append(p)
+    # makes set of all source plate numbers within dataset
     plates = {x[0] for x in ardf.columns}
     nm4 = ardf.copy(deep=False)
     columns1 = {x[1:4] for x in nm4.columns}
     df_with_strains = pd.DataFrame()
+    # iterates through each source plate number and makes sub-dataset for each such that gene names can be appended.
     for a, n in zip(plate_DFs, sorted(plates)):
         df1 = (ardf.xs((n), axis=1, drop_level=True))
         df1.columns = [f'{i}_{j}' for i,j in df1.columns]
+        #merges sub-dataset with the gene names, matching based on row and column location.
         df2 = pd.merge(df1,a,left_index=True, right_index=True)
+        #adds merged dataset to new dataframe, such that all source plate named columns are within dataset.
         df_with_strains = pd.concat([df_with_strains , df2], ignore_index=True)
     df_with_strains = df_with_strains.rename(columns={'strain': 'Gene'})
     df_with_strains = df_with_strains.set_index('Gene')
+    # splits columns back into multiheaders
     df_with_strains.columns = df_with_strains.columns.str.split('_', expand=True)
     df_with_strains = df_with_strains.sort_index()
     if max_size != None:
         df_with_strains[df_with_strains > float(max_size)] = np.nan
     
     df_with_strains= df_with_strains.reset_index()
+    # removes rows named "EMPTY"
     df_with_strains = df_with_strains[df_with_strains['Gene'] != "EMPTY"]
+    # if specified to remove certain strains will read the input and split by ";" to remove rows with specified names.
     if remove_y_n == 'Yes':
         for stra in inclstrains:
             df_with_strains = df_with_strains[df_with_strains['Gene'] != stra]
     df_with_strains = df_with_strains.set_index(['Gene'])
-
     df_with_strains.to_csv(outputfile1+"_Final_dataset.csv")
+    
+    # For the bar plots:
+    # averages the scores of rows with the same gene name.
     group = df_with_strains.groupby(level=0).mean()
     group2 = group.copy(deep=False)
     df3 = pd.DataFrame(index=group.index)
+    # iterates through each condition
     for column in group:
         df1 = group[column]
         df1 = pd.DataFrame(df1)
         ar1 = np.array(df1)
         ar2 = np.array(df1)
         wt_mean = float(df1.loc[wildtype1])
+        # divides each averaged colony size by the mean wildtype colonysize for that condition
         for ind, j in zip(df1.index,range(len(ar1))):
             ar2[j] = (float(ar1[j])/wt_mean)
+        #adds scored column to new dataframe
         df3 = np.concatenate((df3,ar2), axis=1)    
     df3 = pd.DataFrame(df3, index=group.index, columns=group.columns)
     df3.index.name = None
+    # drops the WT row from the scored dataset.
     df3 = df3.drop(wildtype1,axis=0)
     my_expandera = st.expander(label="Scored Dataset", expanded=False)
     my_expandera.write(df3, header=[0,1,2])
@@ -684,32 +816,36 @@ if complete:
         st.session_state.scored_dataset = df3
     elif "scored_dataset" in st.session_state:
         st.session_state.scored_dataset = df3
-    
-    elwarn = st.warning("Preparing plots for download, do not download until ready.")
+    elwarn = st.warning("Preparing plots for download, do not click 'Download' until ready.")
     conditions = {x[0] for x in df3.columns}
     clen = len(conditions)
     slen = len(df3)
+    
+    #preps lists for the appending various attributes such that they can be reloaded if a plot is downloaded.
     figs = []
     imgs = []
     fns = []
     cs = []
+
+    #produces heatmap based on the same dataset used for the barplots
+    # transposes data such that rows are conditions
     b = df3.T
+    # averages replicate scores
     c = b.groupby(level=0).mean()
+    #transposes back for plotting of the heatmap
     x = c.T
     for i in range(len(x.columns)):
         x = x.rename(columns={x.columns[i]: x.columns[i].replace(",",".")})
     c = x.T
-    #c = c.reset_index()
-    #c = pd.melt(c, id_vars =['index'])
-    #if order_type == "Yes":
-    #    c['value'] = pd.Categorical(c['value'],dtype='category', categories=order_list, ordered=True)
-    #c = c.pivot('index', 'variable', 'value')
-    #st.write(c)
     sns.set(style="white")
     sns.set_context("paper")
     fig, ax = plt.subplots()
+    fig.set_size_inches(heat_width, heat_height)
     colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
-    ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": 4},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+    if heatsize == 0:
+        ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+    else:
+        ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
     myexp = st.expander(label="Heatmap:", expanded=False)
     col1a,col1b,col1c = myexp.columns((1,4,1))
     col1b.pyplot(fig)
@@ -719,6 +855,7 @@ if complete:
     img = io.BytesIO()
     fn =("ChemGAPP_Heatmap.pdf")
     temp = os.path.join(new_dir,fn)
+    #writes a temporary file into pickle of the figure such that it can be reloaded later
     with open(temp,'wb') as fid:
         pickle.dump(fig, fid)
     fns.append(fn)
@@ -729,7 +866,7 @@ if complete:
                          file_name=fn,
                          mime="image/pdf"
                       )
-    
+    # if selected to group by condition, and bar plot then produces bar plot for each condition. 
     st.write(bar_swarm+"s")
     if plot_type == 'Condition':
         if bar_swarm == 'Bar Plot':
@@ -751,71 +888,102 @@ if complete:
                 plt.title(c.replace(",","."))
                 plt.xticks(rotation=rote)
                 sns.despine()
-                a= i+1
-                if (a % 2) != 0:
-                    cola, colb = st.columns((1,1))
-                    myexpand = cola.expander(label=c.replace(",","."), expanded=False)
+                if width1 >= 10:
+                    myexpand = st.expander(label=c, expanded=False)
                     myexpand.pyplot(fig)
                     figs.append(fig)
                     cs.append(c)
-                    img = (io.BytesIO())
+                    img =(io.BytesIO())
                     
                     plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                     temp = os.path.join(new_dir,fn)
                     with open(temp,'wb') as fid:
                         pickle.dump(fig, fid)
                     fns.append(fn)
-                    but1 = myexpand.download_button(
+                    but3 = myexpand.download_button(
                          label="Download image",
                          data=img,
                          file_name=fn,
                          mime="image/pdf"
                       )
-                else:
-                    myexpand = colb.expander(label=c.replace(",","."), expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img = (io.BytesIO())
-                    
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but2 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                
+                if width1 < 10:
+                    a= i+1
+                    if (a % 2) != 0:
+                        cola, colb = st.columns((1,1))
+                        myexpand = cola.expander(label=c.replace(",","."), expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img = (io.BytesIO())
+
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but1 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    else:
+                        myexpand = colb.expander(label=c.replace(",","."), expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img = (io.BytesIO())
+
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but2 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+        # if swarmplot selected produces swarmplots instead. Here the data is scored differently.          
         if bar_swarm == 'Swarm Plot':
             df_swarm1 = df_with_strains.reset_index()
+            #makes df including just the wildtype values
             df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
+            # df_swarm3 = df_swarm1[df_swarm1['Gene'] != WT]
+            # adds "0_" to WT column name such that it is always sorted first 
+            # when sorting alphabetically, necessary for the ANOVA tests.
             df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
             df_swarm3 = df_swarm1.sort_values("Gene") 
+            # calculates the wildtype colony size mean for each condition plate.
             wt_mean = np.array(df_swarm2.mean())
             df_swarm3 = df_swarm3.set_index("Gene")
             df_swarm4 = pd.DataFrame(index=df_swarm3.index)
+            # iterates through each condition plate and associated WT mean
             for column,mean in zip(df_swarm3,wt_mean):
                 df1 = df_swarm3[column]
                 df1 = pd.DataFrame(df1)
                 ar1 = np.array(df1)
                 ar2 = np.array(df1)
                 for ind, j in zip(df1.index,range(len(ar1))):
+                    #divides each individual colony size by the WT_mean, including for the WT values.
                     ar2[j] = (float(ar1[j])/mean)
                 df_swarm4 = np.concatenate((df_swarm4,ar2), axis=1)    
             df_swarm4 = pd.DataFrame(df_swarm4, index=df_swarm3.index, columns=df_swarm3.columns)
             df_swarm4.index.name = None
             conditions = {x[0] for x in df_swarm4.columns}
+            #iterates through conditions and makes sub-dataset including all replicate plates for same condition.
             for c,i in zip(sorted(conditions),range(len(conditions))):
                 df1 = df_swarm4.xs((c), axis =1, drop_level=False)
+                #metls dataset so all scores are in sigular column
                 df2 = df1.melt(ignore_index=False)
                 df2= df2.reset_index()
                 df2.columns = ["Strain","Condition","Replicate","Score"]
+                # performs anova and tukey-hsd but only takes the values for comarison to the WT for each gene,
+                # such that significance can be plotted on swarm plots
                 res = stat()
                 res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
                 stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
@@ -831,6 +999,7 @@ if complete:
                 sns.set_context("paper")
                 fig, ax1 = plt.subplots()
                 ax1 = sns.swarmplot(x="Strain", y="Score",hue="Strain", data=df2, alpha=1,size=circ_size,palette=st.session_state.pal_type, order=order_list)
+                # adds mean bars
                 ax = sns.boxplot(showmeans=True,
                         meanline=True,
                         meanprops={'color': 'k', 'ls': '-', 'lw': 1},
@@ -842,6 +1011,7 @@ if complete:
                         showbox=False,
                         showcaps=False,
                         ax=ax1,order=order_list)
+                #adds anova asterisk type annotations for sigificance. 
                 annotator = Annotator(ax, pairs, **plotting_parameters,order=order_list)
                 annotator.set_pvalues(pvalues)
                 annotator.configure(line_width = 0)
@@ -852,7 +1022,7 @@ if complete:
                 ax.set(xlabel= "Strain",ylabel='Fitness Ratio')
                 if sety == "Yes":
                     ax1.set_ylim(ylow,yhigh)
-                plt.title(c.replace(",",".").replace("-"," "))
+                plt.title(c)
                 if xlabes == 'No':
                     plt.xticks([])
                 if  xlabes == 'Yes':
@@ -924,14 +1094,17 @@ if complete:
                          file_name=fn,
                          mime="image/pdf"
                       )
-                
+    #here groups by strain and not condition.
     if plot_type == 'Strain':
         if bar_swarm == 'Bar Plot':
+            #transposes dataset such that it can be grouped by strains.
             b = df3.T
             conditions = {x for x in b.columns}
+            #splits and iterates by strain.
             for c,i in zip(sorted(conditions),range(len(conditions))):
                 df1 = b.xs((c), axis=1, drop_level=False)
                 df1 = df1.T
+                #melts dataset such that all scores in one column with key being for the conditions
                 df2 = df1.melt(ignore_index=False)
                 df2.columns = ["Condition","Replicate","Score"]
                 sns.set(style="white")
@@ -947,50 +1120,73 @@ if complete:
                 fig.set_size_inches(width1, height1)
                 
                 sns.despine()
-                a= i+1
-                if (a % 2) != 0:
-                    cola, colb = st.columns((1,1))
-                    myexpand = cola.expander(label=c, expanded=False)
+                if width1 >= 10:
+                    myexpand = st.expander(label=c, expanded=False)
                     myexpand.pyplot(fig)
                     figs.append(fig)
                     cs.append(c)
                     img =(io.BytesIO())
                     
-                    
                     plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                     temp = os.path.join(new_dir,fn)
                     with open(temp,'wb') as fid:
                         pickle.dump(fig, fid)
                     fns.append(fn)
-                    but6 = myexpand.download_button(
+                    but3 = myexpand.download_button(
                          label="Download image",
                          data=img,
                          file_name=fn,
                          mime="image/pdf"
                       )
-                else:
-                    myexpand = colb.expander(label=c, expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img =(io.BytesIO())
-                    
-                    
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but7 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
+                if width1 < 10:
+                    a= i+1
+                    if (a % 2) != 0:
+                        cola, colb = st.columns((1,1))
+                        myexpand = cola.expander(label=c, expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img =(io.BytesIO())
+                        
+                        
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but6 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    else:
+                        myexpand = colb.expander(label=c, expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img =(io.BytesIO())
+                        
+                        
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but7 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
                 
         if bar_swarm == "Swarm Plot":
+            #as above with condition grouped swarmplots, 
+            # produces dataset with each individual colonzy size divided by WT mean for that condition. 
+            # then calulates anova and tukey-hsd and takes p values for WT vs each strain. 
             df_swarm1 = df_with_strains.reset_index()
             df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
             df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
@@ -1010,6 +1206,8 @@ if complete:
             df_swarm4.index.name = None
             conditions = {x[0] for x in df_swarm4.columns}
             genes = {x for x in df_swarm4.index}
+            # produces zeros matrix that can be filled for [(gene1,gene1),condition,p-value], 
+            # need to compare pairs to themselves since plots sorted by strain then plot based on the conditions split by gene name
             leng = len(genes)-1
             anovas = np.zeros((leng, 3),dtype=object)
             anovas.shape = (leng,3)
@@ -1020,8 +1218,10 @@ if complete:
                 df2.columns = ["Strain","Condition","Replicate","Score"]
                 res = stat()
                 res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
+                #takes only those compared to the WT
                 stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
-                print(stats1)
+                # makes list of the current condition same length as number of genes - 1. 
+                # Allows for zipping to the pairs and p-values for the matrix.
                 cond = ([c] * leng)
                 pairs = list(zip(stats1.group2, stats1.group2))
                 pvalues = list(stats1['p-value'])
@@ -1032,6 +1232,7 @@ if complete:
             print(anovas)
             anovas = anovas[leng:len(anovas)]
             df_swarm4 = df_swarm4[df_swarm4.index != ("0_"+wildtype1)]
+            #transposes dataset such that can be split by strain instead of condition.
             b = df_swarm4.T
             conditions = {x for x in b.columns}
             for c,i in zip(sorted(conditions),range(len(conditions))):
@@ -1039,6 +1240,8 @@ if complete:
                 df1 = df1.T
                 df2 = df1.melt(ignore_index=False)
                 df2.columns = ["Condition","Replicate","Score"]
+                #finds the annotation pair (condition,condition) 
+                # and pvalue for the current strain for annotation of significance scores.
                 m = [row for row in anovas if c == row[0][0]]
                 pair1 = [(row[1],row[1]) for row in m]
                 pvalue1 = [row[2] for row in m]
@@ -1075,7 +1278,7 @@ if complete:
                 ax.set(xlabel= "Condition",ylabel='Fitness Ratio')
                 if sety == "Yes":
                     ax.set_ylim(ylow,yhigh)
-                plt.title(c.replace(",",".").replace("-"," "))
+                plt.title(c)
                 if xlabes == 'No':
                     plt.xticks([])
                 if  xlabes == 'Yes':

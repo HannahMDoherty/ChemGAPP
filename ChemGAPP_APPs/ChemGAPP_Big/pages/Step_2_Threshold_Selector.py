@@ -48,7 +48,6 @@ def new_np_changed():
         if st.session_state.new_np:
             st.session_state.np = float(st.session_state.new_np)
 if st.session_state.outputfile:
-    #st.sidebar.write(st.session_state.outputfile)
     my_expander2 = st.expander(label="Initial Dataset:")
     element4 = my_expander2.write(st.session_state.initial_dataset)
     my_expander4 = st.expander(label="Bar Plots:")
@@ -73,152 +72,17 @@ if st.session_state.outputfile:
         if len(options) == 0:
             st.warning("No tests selected! If you do not wish to remove data, continue to Step 3 and select 'Original'")
         if set(options) == {'Percentage Normality'}:
-            #if len(options) == 1:
-                info1 = st.info("Running Plate Removal...")
-                input_DF_2 = st.session_state.Z_Count
-                m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
-                Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
-                                                'Normality Percentage','File Name'])
-                lst = []
-                for row in input_DF_2.iterrows():
-                    if row[1][8] < st.session_state.np:
-                        abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
-                        lst.append(abc)
-                        name = (row[1][0],row[1][1],row[1][3],row[1][2],
-                                row[1][8],(row[1][1].replace(".",",").replace(" ","-")+'-'+str(row[1][0])+"-"+str(row[1][3].replace("Batch",""))+'_'+row[1][2]+'.JPG.iris'))
-                        columns = list(Plts_rm)
-                        data = []
-                        zipped = zip(columns, name)
-                        a_dictionary = dict(zipped)
-                        data.append(a_dictionary)
-                        Plts_rm = Plts_rm.append(data, True)
-                Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
-                lst2 =  m.columns.tolist()
-                lst3 = []
-                for i in lst:
-                    if i in lst2:
-                        lst3.append(i)
-                #st.write(lst3)
-                n = m.drop(columns=lst3, axis=1)
-                
-                thresholdset = ("Normality Threshold = "+ str(st.session_state.np))
-                n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
-                info1.empty()
-                my_expander2 = st.expander(label="Curated Dataset:")
-                element4 = my_expander2.write(n)
-        elif set(options) == {'Mann Whitney Plate Level'}:
-            #if len(options) == 1:
-                info1 = st.info("Running Plate Removal...")
-                input_DF_2 = st.session_state.MW_Plate_Results
-                m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
-                Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
-                                                'Mean P-Value','Mean U-Stat','File Name'])
-                lst = []
-                for row in input_DF_2.iterrows():
-                    if row[1][5] < st.session_state.mwpt:
-                        abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
-                        lst.append(abc)
-                        name = (row[1][1],row[1][2],row[1][3],row[1][0],
-                            row[1][5],row[1][4],(row[1][2].replace(".",",").replace(" ","-")+'-'+str(row[1][1])+"-"+str(row[1][3].replace("Batch",""))+'_'+row[1][0]+'.JPG.iris'))
-                        columns = list(Plts_rm)
-                        data = []
-                        zipped = zip(columns, name)
-                        a_dictionary = dict(zipped)
-                        data.append(a_dictionary)
-                        Plts_rm = Plts_rm.append(data, True)
-                Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
-                lst2 =  m.columns.tolist()
-                lst3 = []
-                for i in lst:
-                    if i in lst2:
-                        lst3.append(i)
-                #st.write(lst3)
-                n = m.drop(columns=lst3, axis=1)
-                
-                thresholdset = ("MW Plate Threshold = "+ str(st.session_state.mwpt))
-                n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
-                info1.empty()
-                my_expander2 = st.expander(label="New Dataset:")
-                element4 = my_expander2.write(n)
-        elif set(options) == {'Average Variance'}:
-            #if len(options) == 1:
-                info1 = st.info("Running Plate Removal...")
-                input_DF_2 = st.session_state.Var_cond_Results
-                m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
-                m.columns = m.columns.swaplevel(0,1)
-                m.columns = m.columns.swaplevel(1, 3)
-                Plts_rm = pd.DataFrame(columns=['Condition','Batch',
-                                                'Average Variance'])
-                lst = []
-                for row in input_DF_2.iterrows():
-                    if row[1][2] > st.session_state.vt:
-                        abc=(str(row[1][0]),row[1][1])
-                        lst.append(abc)
-                        name = (row[1][0],row[1][1],row[1][2])
-                        columns = list(Plts_rm)
-                        data = []
-                        zipped = zip(columns, name)
-                        a_dictionary = dict(zipped)
-                        data.append(a_dictionary)
-                        Plts_rm = Plts_rm.append(data, True)
-                Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-                lst2 =  {x[0:2] for x in m.columns}
-                lst3 = []
-                for i in lst:
-                    if i in lst2:
-                        lst3.append(i)
-                n = m.drop(columns=lst3, axis=1)
-                n.columns = n.columns.swaplevel(3,1)
-                n.columns = n.columns.swaplevel(1,0)
-                thresholdset = ("Average Variance Threshold = "+ str(st.session_state.vt))
-                n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
-                info1.empty()
-                my_expander2 = st.expander(label="New Dataset:")
-                element4 = my_expander2.write(n)
-        elif set(options) == {'Mann Whitney Condition Level'}:
-            #if len(options) == 1:
-                info1 = st.info("Running Plate Removal...")
-                input_DF_2 = st.session_state.MW_cond_Results
-                m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
-                m.columns = m.columns.swaplevel(0,1)
-                m.columns = m.columns.swaplevel(1, 3)
-                Plts_rm = pd.DataFrame(columns=['Condition','Batch',
-                                                'Mean Variance P-Value','Mean Variance U-Stat'])
-                lst = []
-                for row in input_DF_2.iterrows():
-                    if row[1][3] > st.session_state.mwct:
-                        abc=(str(row[1][0]),row[1][1])
-                        lst.append(abc)
-                        name = (row[1][0],row[1][1],row[1][3],row[1][2])
-                        columns = list(Plts_rm)
-                        data = []
-                        zipped = zip(columns, name)
-                        a_dictionary = dict(zipped)
-                        data.append(a_dictionary)
-                        Plts_rm = Plts_rm.append(data, True)
-                Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-                lst2 =  {x[0:2] for x in m.columns}
-                lst3 = []
-                for i in lst:
-                    if i in lst2:
-                        lst3.append(i)
-                n = m.drop(columns=lst3, axis=1)
-                n.columns = n.columns.swaplevel(3,1)
-                n.columns = n.columns.swaplevel(1,0)
-                thresholdset = ("MW Condition Threshold = "+ str(st.session_state.mwct))
-                n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
-                info1.empty()
-                my_expander2 = st.expander(label="New Dataset:")
-                element4 = my_expander2.write(n)
-        elif set(options) == {'Mann Whitney Plate Level','Percentage Normality'}:
             info1 = st.info("Running Plate Removal...")
             input_DF_2 = st.session_state.Z_Count
             m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
-                if row[1][8] <  st.session_state.np:
+                if row[1][8] < st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -230,19 +94,183 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
+            n = m.drop(columns=lst3, axis=1)
+            
+            thresholdset = ("Normality Threshold = "+ str(st.session_state.np))
+            n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
+            info1.empty()
+            my_expander2 = st.expander(label="Curated Dataset:")
+            element4 = my_expander2.write(n)
+        elif set(options) == {'Mann Whitney Plate Level'}:
+            info1 = st.info("Running Plate Removal...")
+            input_DF_2 = st.session_state.MW_Plate_Results
+            m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
+            Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
+                                            'Mean P-Value','Mean U-Stat','File Name'])
+            lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
+            for row in input_DF_2.iterrows():
+                if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
+                    abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
+                    lst.append(abc)
+                    name = (row[1][1],row[1][2],row[1][3],row[1][0],
+                        row[1][5],row[1][4],(row[1][2].replace(".",",").replace(" ","-")+'-'+str(row[1][1])+"-"+str(row[1][3].replace("Batch",""))+'_'+row[1][0]+'.JPG.iris'))
+                    columns = list(Plts_rm)
+                    data = []
+                    zipped = zip(columns, name)
+                    a_dictionary = dict(zipped)
+                    data.append(a_dictionary)
+                    Plts_rm = Plts_rm.append(data, True)
+            Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 =  m.columns.tolist()
+            lst3 = []
+            for i in lst:
+                if i in lst2:
+                    lst3.append(i)
+            #drops columns within the list.
+            n = m.drop(columns=lst3, axis=1)
+            
+            thresholdset = ("MW Plate Threshold = "+ str(st.session_state.mwpt))
+            n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
+            info1.empty()
+            my_expander2 = st.expander(label="New Dataset:")
+            element4 = my_expander2.write(n)
+        elif set(options) == {'Average Variance'}:
+            info1 = st.info("Running Plate Removal...")
+            input_DF_2 = st.session_state.Var_cond_Results
+            m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
+            #swaps levels so later we can remove by just condition and batch
+            m.columns = m.columns.swaplevel(0,1)
+            m.columns = m.columns.swaplevel(1, 3)
+            Plts_rm = pd.DataFrame(columns=['Condition','Batch',
+                                            'Average Variance'])
+            lst = []
+            #goes down row by row and checks if mean variance is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
+            for row in input_DF_2.iterrows():
+                if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list                    
+                    abc=(str(row[1][0]),row[1][1])
+                    lst.append(abc)
+                    name = (row[1][0],row[1][1],row[1][2])
+                    columns = list(Plts_rm)
+                    data = []
+                    zipped = zip(columns, name)
+                    a_dictionary = dict(zipped)
+                    data.append(a_dictionary)
+                    Plts_rm = Plts_rm.append(data, True)
+            Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
+            lst3 = []
+            for i in lst:
+                if i in lst2:
+                    lst3.append(i)
+            #drops columns within the list.
+            n = m.drop(columns=lst3, axis=1)
+            n.columns = n.columns.swaplevel(3,1)
+            n.columns = n.columns.swaplevel(1,0)
+            thresholdset = ("Average Variance Threshold = "+ str(st.session_state.vt))
+            n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
+            info1.empty()
+            my_expander2 = st.expander(label="New Dataset:")
+            element4 = my_expander2.write(n)
+        elif set(options) == {'Mann Whitney Condition Level'}:
+            info1 = st.info("Running Plate Removal...")
+            input_DF_2 = st.session_state.MW_cond_Results
+            m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
+            #swaps levels so later we can remove by just condition and batch
+            m.columns = m.columns.swaplevel(0,1)
+            m.columns = m.columns.swaplevel(1, 3)
+            Plts_rm = pd.DataFrame(columns=['Condition','Batch',
+                                            'Mean Variance P-Value','Mean Variance U-Stat'])
+            lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
+            for row in input_DF_2.iterrows():
+                if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
+                    abc=(str(row[1][0]),row[1][1])
+                    lst.append(abc)
+                    name = (row[1][0],row[1][1],row[1][3],row[1][2])
+                    columns = list(Plts_rm)
+                    data = []
+                    zipped = zip(columns, name)
+                    a_dictionary = dict(zipped)
+                    data.append(a_dictionary)
+                    Plts_rm = Plts_rm.append(data, True)
+            Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
+            lst3 = []
+            for i in lst:
+                if i in lst2:
+                    lst3.append(i)
+            #drops columns within the list.
+            n = m.drop(columns=lst3, axis=1)
+            n.columns = n.columns.swaplevel(3,1)
+            n.columns = n.columns.swaplevel(1,0)
+            thresholdset = ("MW Condition Threshold = "+ str(st.session_state.mwct))
+            n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
+            info1.empty()
+            my_expander2 = st.expander(label="New Dataset:")
+            element4 = my_expander2.write(n)
+        elif set(options) == {'Mann Whitney Plate Level','Percentage Normality'}:
+            info1 = st.info("Running Plate Removal...")
+            input_DF_2 = st.session_state.Z_Count
+            m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
+            Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
+                                            'Normality Percentage','File Name'])
+            lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
+            for row in input_DF_2.iterrows():
+                if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
+                    abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
+                    lst.append(abc)
+                    name = (row[1][0],row[1][1],row[1][3],row[1][2],
+                            row[1][8],(row[1][1].replace(".",",").replace(" ","-")+'-'+str(row[1][0])+"-"+str(row[1][3].replace("Batch",""))+'_'+row[1][2]+'.JPG.iris'))
+                    columns = list(Plts_rm)
+                    data = []
+                    zipped = zip(columns, name)
+                    a_dictionary = dict(zipped)
+                    data.append(a_dictionary)
+                    Plts_rm = Plts_rm.append(data, True)
+            Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 =  m.columns.tolist()
+            lst3 = []
+            for i in lst:
+                if i in lst2:
+                    lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_Plate_Results
             m = n
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -254,11 +282,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             thresholdset = ("Normality Threshold = "+ str(st.session_state.np)+", MW Plate Threshold = "+ str(st.session_state.mwpt))
             n.to_csv(st.session_state.outputfile+"_curated_dataset.csv", sep="\t")
@@ -273,8 +304,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -286,19 +320,25 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_Plate_Results
             m = n
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -310,21 +350,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -335,11 +382,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -356,8 +406,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -369,19 +422,25 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_Plate_Results
             m = n
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -393,21 +452,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -418,16 +484,20 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -435,6 +505,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -445,11 +516,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -466,8 +540,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -479,21 +556,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -504,11 +588,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -525,8 +612,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -538,21 +628,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -563,11 +660,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -584,8 +684,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -597,14 +700,18 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -612,6 +719,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -622,11 +730,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -643,8 +754,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -656,14 +770,18 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -671,6 +789,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -681,11 +800,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -699,13 +821,17 @@ if st.session_state.outputfile:
             info1 = st.info("Running Plate Removal...")
             m = pd.read_csv(st.session_state.outputfile+".csv",index_col=[0, 1],header=[0, 1, 2, 3])
             input_DF_2 = st.session_state.MW_cond_Results
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -716,16 +842,20 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -733,6 +863,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -743,11 +874,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -764,8 +898,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -777,19 +914,25 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_Plate_Results
             m = n
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -801,16 +944,20 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -818,6 +965,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -828,11 +976,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -849,8 +1000,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Mean P-Value','Mean U-Stat','File Name'])
             lst = []
+            #goes down row by row and checks if mean p-value is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][5] < st.session_state.mwpt:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][1]),row[1][2],row[1][0],row[1][3])
                     lst.append(abc)
                     name = (row[1][1],row[1][2],row[1][3],row[1][0],
@@ -862,21 +1016,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWP_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -887,16 +1048,20 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -904,6 +1069,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -914,11 +1080,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -935,8 +1104,11 @@ if st.session_state.outputfile:
             Plts_rm = pd.DataFrame(columns=['Plate','Condition','Batch','Replicate',
                                             'Normality Percentage','File Name'])
             lst = []
+            #goes down row by row and checks if percentage normality is less than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe 
             for row in input_DF_2.iterrows():
                 if row[1][8] <  st.session_state.np:
+                    #appends the condition, source plate, replicate and batch name to a list
                     abc=(str(row[1][0]),row[1][1],row[1][2],row[1][3])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2],
@@ -948,21 +1120,28 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Normality_files_removed.csv")
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
             lst2 =  m.columns.tolist()
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             input_DF_2 = st.session_state.MW_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
                                             'Mean Variance P-Value','Mean Variance U-Stat'])
             lst = []
+            #goes down row by row and checks if mean variance p-value is larger than the chosen threshold,
+            # if so it is appended to a row of Plts_rm dataframe
             for row in input_DF_2.iterrows():
                 if row[1][3] > st.session_state.mwct:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][3],row[1][2])
@@ -973,16 +1152,20 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_MWC_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
             input_DF_2 = st.session_state.Var_cond_Results
             m = n
+            #swaps levels so later we can remove by just condition and batch
             m.columns = m.columns.swaplevel(0,1)
             m.columns = m.columns.swaplevel(1, 3)
             Plts_rm = pd.DataFrame(columns=['Condition','Batch',
@@ -990,6 +1173,7 @@ if st.session_state.outputfile:
             lst = []
             for row in input_DF_2.iterrows():
                 if row[1][2] > st.session_state.vt:
+                    #appends the condition and batch name to a list
                     abc=(str(row[1][0]),row[1][1])
                     lst.append(abc)
                     name = (row[1][0],row[1][1],row[1][2])
@@ -1000,11 +1184,14 @@ if st.session_state.outputfile:
                     data.append(a_dictionary)
                     Plts_rm = Plts_rm.append(data, True)
             Plts_rm.to_csv(st.session_state.outputfile+"_Var_files_removed.csv")
-            lst2 =  {x[0:2] for x in m.columns}
+            #checks if condition and batch in the original 
+            # dataset supplied as you can supply a dataset that has had things removed already from another test.
+            lst2 = {x[0:2] for x in m.columns}
             lst3 = []
             for i in lst:
                 if i in lst2:
                     lst3.append(i)
+            #drops columns within the list.
             n = m.drop(columns=lst3, axis=1)
             n.columns = n.columns.swaplevel(3,1)
             n.columns = n.columns.swaplevel(1,0)
@@ -1024,6 +1211,7 @@ if st.session_state.outputfile:
             m = m[sorted(m)]
             m_array = np.array(m)
             mlen = len(m)
+            #calculates the size of the inputted plates
             if mlen == 1536:
                 rlen = 32
                 clen = 48
@@ -1037,12 +1225,15 @@ if st.session_state.outputfile:
             n = n[sorted(n)]
             n_array = np.array(n)
             m_ind = m.reset_index()
+            # produces dataframe and array excluding the outer two rows and columns for each plate for plate middle mean (PMM) calculation
             mask = (m_ind['row'] != 1) & (m_ind['row'] != rlen) & (m_ind['column'] != 1) & (m_ind['column'] != clen) & (m_ind['row'] != 2) & (m_ind['row'] != (rlen-1)) & (m_ind['column'] != 2) & (m_ind['column'] != (clen-1))
             df_pmm = m_ind[mask]
             df_pmm = df_pmm.set_index(['row','column'])
+            # produces dataframe and array of the outer two rows and columns for each plate
             df_outer = m_ind[-mask]
             df_outer = df_outer.set_index(['row','column'])
             pmm_array = np.array(df_pmm)
+            #calculates median colony size for the entire dataset
             m_medain = np.nanmedian(m_array)
             df_outer_norm = pd.DataFrame(index=m.index)
             #Change all false zeros to NaN in the dataset
@@ -1067,16 +1258,20 @@ if st.session_state.outputfile:
             ardf = np.zeros((mlen, 1))
             ardf.shape = (mlen,1)
             rounds = 0
+            #runs through each plate individually matching the plates for the outer and inner dataframes
             for c1,c2,i in zip(sorted(df_pmm.columns),sorted(df_outer.columns), range(len(m.columns))):
                 rounds = rounds + 1
                 print(rounds)
                 ar1 = pmm_array[:,i]
                 ar2 = n_array[:,i]
+                # finds the colony sizes within the 40th and 60th percentiles for PMM calculation
                 pmm_40 = np.nanpercentile(ar1, 40)
                 pmm_60 = np.nanpercentile(ar1, 60)
                 mask2= (ar1 >= pmm_40) & (ar1 <= pmm_60) 
                 pmm_perc_values = ar1[mask2]
+                # finds mean of these 40th-60th percentile values = PMM
                 PMM = pmm_perc_values.mean()
+                #compares the distributions of outer colonies and inner colonies to check if first step of normalisation is required
                 df1 = df_pmm.xs((c1), axis =1, drop_level=False)
                 arA=np.array(df1)
                 arA= np.array(arA).flatten()
@@ -1084,9 +1279,10 @@ if st.session_state.outputfile:
                 arB=np.array(df2)
                 arB= np.array(arB).flatten()
                 w, p = ranksums(arA, arB)
+                # if siginificantly different performs the first step and second step. 
                 if p < 0.05:
-                    print("Different Dist")
                     for ind, j in zip(m.index,range(len(ar2))):
+                        # for each colony within the outer two edges this calculates the median of the row and column in which they are located
                         if ind[0] == 1 or ind[0] == rlen or ind[1] == 1 or ind[1] == clen or ind[0] == 2 or ind[0] == (rlen-1) or ind[1] == 2 or ind[1] == (clen-1):  
                             if ind[0] == 1:
                                 p_median_list_1 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[0] == 1]
@@ -1112,21 +1308,21 @@ if st.session_state.outputfile:
                             elif ind[1] == (clen-1):
                                 p_median_list_47 = [list(m_array[c:c+1,i]) for c, ind in zip(range(len(m_array)),m.index) if ind[1] == (clen-1)]
                                 p_median = np.nanmedian(p_median_list_47)
+                            # colonys within the outer two edges are then scaled such that the median of the row or column are equal to the PMM
+                            # It then scales such that the the PMM is equal the median colony size of the entire datatset.
                             ar2[j] = (((ar2[j])*(PMM/p_median))*(m_medain/PMM))
-                            #if ar2[j] > 5000:
-                            #   ar2[j] = 5000
+                        # If colonies are within the centre of the plate this scales such that the the PMM is equal
+                        # the median colony size of the entire datatset.    
                         elif ind[0] != 1 or ind[0] != rlen or ind[1] != 1 or ind[1] != clen or ind[0] != 2 or ind[0] != (rlen-1) or ind[1] != 2 or ind[1] != (clen-1):
                             ar2[j] = ((ar2[j])*(m_medain/PMM))
-                            #if ar2[j] > 5000:
-                            #   ar2[j] = 5000
+                            
                     ar2.shape = (mlen,1)
                     ardf = np.concatenate((ardf,ar2), axis=1)
+                # if outer edge and inner colonies are not signficantly different 
+                # then just scales entire plate such that the PMM is equal to the median colony size of entire dataset
                 else:
-                    print(c1,"Same Dist")
                     for ind, j in zip(m.index,range(len(ar2))):
                         ar2[j] = ((ar2[j])*(m_medain/PMM))
-                        #if ar2[j] > 5000:
-                        #        ar2[j] = 5000
                     ar2.shape = (mlen,1)
                     ardf = np.concatenate((ardf,ar2), axis=1)
             ardf = pd.DataFrame(ardf, index=m.index)

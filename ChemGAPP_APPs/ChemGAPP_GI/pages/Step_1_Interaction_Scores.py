@@ -126,6 +126,7 @@ complete = st.sidebar.button(label="Begin!")
 if complete:
             def GI_dataset(PATH):   
                 m = None
+                # cycles through iris files and uses filename to produce column headers.
                 for f in uploaded_files:
                     g = pd.read_csv(f,
                             comment='#',
@@ -145,8 +146,9 @@ if complete:
                             m1 = g['size']
                             m1.name = (f.name.split('_')[0], f.name.split('.')[0].split('_')[1])
                             m1 = m1.to_frame()
-                        #sets them in a dataframe grouped by the condition and then columns as the A B C D or E etc
+                        #sets them in a dataframe grouped by the secondary gene name and then replicates.
                         m = m.join(m1, how='inner')
+                # renames the plate info file columns and adds row and column to index before sorting by index.
                 def plate_info(file):
                     p = pd.read_table(file)
                     if len(p.columns) != 6:
@@ -156,13 +158,17 @@ if complete:
                         p = p.set_index(['row','column'])
                         p = p.sort_index()
                     return p
-
+                
+                # looks for digits within the file names so that order of 
+                # plate info files is sorted plate1, plate2, plate3 etc. not plate1, plate10, plate2 etc.        
                 def atoi(text):
                     return int(text) if text.isdigit() else text
 
                 def natural_keys(text):
                     return [ atoi(c) for c in re.split(r'(\d+)', text.name) ]
+                
                 plate_info_files.sort(key=natural_keys)
+                #adds the plate files to a list
                 plate_DFs = []
                 for i in plate_info_files:
                     p = plate_info(i)
@@ -171,16 +177,18 @@ if complete:
                 m2 = pd.DataFrame(m.copy(deep=False))
                 columns1 = [x[0] for x in m2.columns]
                 df_with_strains = pd.DataFrame(columns = [columns1[0],'strain','Replicate','Order','Set'])
+                # splits by secondary gene name 
+                # adds the gene names, replicate number, set and order to the colony size data based on row and column
                 for a, n in zip(plate_DFs, sorted(plates)):
                     df1 = (m.xs((n), axis =1, drop_level=True))
                     df1 = pd.DataFrame(df1)
                     df2 = pd.merge(df1,a,left_index=True, right_index=True)
-                    #df2 = df2.set_index(['strain','Replicate','Order','Set'])
                     df2.columns = [n[0],'strain','Replicate','Order','Set']
                     df_with_strains = pd.concat([df_with_strains, df2], ignore_index=True)
                 df_with_strains = df_with_strains.rename(columns={'strain': 'Gene'})
                 df2 = df_with_strains.set_index(['Set','Replicate','Order','Gene'])
                 set = {x[0] for x in df2.index}
+                #splits by set, thus different gene sets have their own output files. 
                 for s in sorted(set):
                     df = pd.DataFrame()
                     df1 = df2.xs((s), axis=0, drop_level=True)
@@ -188,7 +196,7 @@ if complete:
                     for r in sorted(replicate):
                         dfb = df1.xs((r), axis=0, drop_level=False)
                         dfb = dfb.sort_index(level="Order")
-                        print(dfb.iloc[2].name[2],(dfb.iloc[1][0]/dfb.iloc[0][0],dfb.iloc[2][0]/dfb.iloc[0][0],(dfb.iloc[1][0]/dfb.iloc[0][0])*(dfb.iloc[2][0]/dfb.iloc[0][0]),dfb.iloc[3][0]/dfb.iloc[0][0]))
+                        #calculates the fitness ratios and double expected ratios and adds them to the dataset
                         name = (dfb.iloc[1][0]/dfb.iloc[0][0],dfb.iloc[2][0]/dfb.iloc[0][0],(dfb.iloc[1][0]/dfb.iloc[0][0])*(dfb.iloc[2][0]/dfb.iloc[0][0]),dfb.iloc[3][0]/dfb.iloc[0][0])
                         columns = list([dfb.iloc[1].name[2],"Secondary Gene","Double Expected","Double Observed"])
                         data = []
