@@ -117,7 +117,7 @@ if complete:
                 df_co_sim_R_T.columns=['Gene1','Gene2','Cosine_score','Same Operon']
                 df_co_sim_R_T = df_co_sim_R_T.reset_index(drop=True)
 
-                random.seed(1)
+                random.seed(2)
                 def random_pairs(number_list): 
                     return [number_list[i] for i in random.sample(range(len(number_list)), 2)] 
                 #selects twice as many pairs as needed for different operons as likely some
@@ -159,7 +159,7 @@ if complete:
                 if len(df_co_sim_R_F) < len(df_co_sim_R_T):
                     # pick random gene pairs from the different operons dataframe
                     # selecting same number as there are in the same operon dataframe
-                    random.seed(1)
+                    random.seed(2)
                     r_S2 = random.sample(range(len(df_co_sim_R_T)), len(df_co_sim_R_F))
                     df_S2= pd.DataFrame(columns=df_co_sim_R_T.columns)
                     for i in r_S2:
@@ -169,7 +169,7 @@ if complete:
                 elif len(df_co_sim_R_F) > len(df_co_sim_R_T):
                     # pick random gene pairs from the different operons dataframe
                     # selecting same number as there are in the same operon dataframe
-                    random.seed(1)
+                    random.seed(2)
                     r_S2 = random.sample(range(len(df_co_sim_R_F)), len(df_co_sim_R_T))
                     df_S2= pd.DataFrame(columns=df_co_sim_R_F.columns)
                     for i in r_S2:
