@@ -3,7 +3,6 @@
 
 # In[ ]:
 import argparse
-from ast import arg
 parser = argparse.ArgumentParser(description="Takes folder of Iris files and produces Dataset for ChemGAPP",
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-p", "--PATH", help="Path to folder which contains IRIS files, IRIS file names should be in the format: CONDITION-concentration-platenumber-batchnumber_replicate.JPG.iris")
