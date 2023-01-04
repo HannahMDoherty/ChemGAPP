@@ -41,6 +41,8 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 
 There are two ways to run the tool:
 
+### Package
+
 - The package module files may be downloaded and run as a python or bin files. To download the files run:
 ```
 git clone https://github.com/HannahMDoherty/ChemGAPP
@@ -54,7 +56,7 @@ or
 ```
 pip3 install -r requirements.txt
 ```
-- Streamlit applications. 
+### Streamlit applications. 
   
   - The graphical interfaces can be run using streamlit. 
     - First download the APP files
