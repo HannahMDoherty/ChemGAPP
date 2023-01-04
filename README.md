@@ -39,9 +39,9 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 
 ### Installation <a name="installation"></a>
 
-There are two ways to run the tool:
+There are two ways to run the tool, via the package files or by running the streamlit applications.
 
-### Package
+### Package:
 
 - The package module files may be downloaded and run as a python or bin files. To download the files run:
 ```
@@ -56,7 +56,7 @@ or
 ```
 pip3 install -r requirements.txt
 ```
-### Streamlit applications. 
+### Streamlit applications: 
   
   - The graphical interfaces can be run using streamlit. 
     - First download the APP files
@@ -161,7 +161,7 @@ The commmand provides a link to the following front web application:
 python Iris_to_Dataset.py [-h] [-p PATH] [-o OUTPUTFILE]
 ```
 
-###### Bin files are intiated by specifying the path to the file. E.g, if within the files directory:
+###### Bin files are intiated by specifying the path to the file. E.g, if within the files' directory:
 
 ```
 ./Iris_to_Dataset [-h] [-p PATH] [-o OUTPUTFILE]
