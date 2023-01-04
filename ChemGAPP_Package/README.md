@@ -41,7 +41,11 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-NoDer
 
 There are two ways to run the tool:
 
-- The package module files may be downloaded and run as a python files. Navigate to `ChemGAPP_Package/src/` and download the module files. 
+- The package module files may be downloaded and run as a python or bin files. To download the files run:
+```
+git clone https://github.com/HannahMDoherty/ChemGAPP
+
+```
 
 - Streamlit applications. 
   
@@ -143,7 +147,16 @@ The commmand provides a link to the following front web application:
 2. [Step_2_Bar_Plot.py](#Step_2_Bar_Plot)
 
 
-All tools are initiated using the python command. The help instruction is called using -h option.
+###### Python files are initiated using the python command. The help instruction is called using -h option. E.g:
+```
+python Iris_to_Dataset.py [-h] [-p PATH] [-o OUTPUTFILE]
+```
+
+###### Bin files are intiated by specifying the path to the file. E.g, if within the files directory:
+
+```
+./Iris_to_Dataset [-h] [-p PATH] [-o OUTPUTFILE]
+```
 
 `Colony Size is stated as the phenotype within the below examples for ease. However, any Iris phenotype (e.g opacity, circularity etc) can be analysed`
 
