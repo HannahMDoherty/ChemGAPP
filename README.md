@@ -171,11 +171,11 @@ python Iris_to_Dataset.py [-h] [-p PATH] [-o OUTPUTFILE]
 
 #### Iris_to_Dataset.py <a name="Iris_to_dataset"></a>
 
-Takes a directory of Iris files and turns them into the combined .csv Dataset used for normalisation. 
+Takes a directory of Iris files and turns them into the combined .csv dataset used for normalisation. 
 
 Input files do not have to be from IRIS as long as they are in the IRIS format and named in the format below.
 
-The IRIS file format is a tab delimited file starting with columns for plate locations, followed by measured phenotypes. E.g:
+The IRIS file format is a tab delimited tabular file starting with columns for plate locations, followed by measured phenotypes. E.g:
 
 | row |	column|	size | circularity | opacity |
 |  ------------- | ------------- | ------------- | ------------- | :-------------: |
@@ -579,6 +579,14 @@ Required arguments:
 
 ChemGAPP Small is an extension within ChemGAPP for the analysis of small scale chemical genomic screens. ChemGAPP Small produces three types of plots, a heatmap, bar plots and swarm plots. For the bar plot and heatmap, ChemGAPP Small compares the mean colony size of within plate replicates to the mean colony size of the within plate wildtype replicates, producing a fitness ratio. The bar plots are then optionally grouped by strain or by condition. The heatmap displays all conditions and strains. For the swarm plots each mutant colony size is divided by the mean colony size of the wildtype, to produce the fitness ratio. A one-way ANOVA and Tukey-HSD analysis determines the significance in difference between each mutant fitness ratio distribution and the wildtype fitness ratio distribution.
 
+Ensure IRIS file names are in the format: `CONDITION-concentration-platenumber_replicate.JPG.iris`
+
+E.g. `AMPICILLIN-50mM-6_B.JPG.iris`
+
+Where concentrations have decimals, use a comma instead of a period:
+
+E.g. `AMPICILLIN-0,5mM-6_B.JPG.iris`
+
 ```
 usage: ChemGAPP_Small.py [-h] [-p PATH] [-o OUTPUTFILE_PREFIX] [-pf PLATEINFOPATH] [-m MAX_COLONY_SIZE] [-wt WILDTYPE] [-it IRIS_TYPE] [-col_plot COLOURPALETTE] [-col_heat COLOURHEATMAP] [-wd WIDTH] [-ht HEIGHT] [-r ROTATION] [-cs CIRCLESIZE] [-g GROUP] [-pt PLOTTYPE]
                          [-rm REMOVE_STRAIN] [-ymax Y_MAX] [-ymin Y_MIN]
@@ -626,6 +634,10 @@ optional arguments:
 #### GI_Dataset.py <a name="GI_Dataset"></a>
 
 GI_Dataset.py calculates the fitness ratio of two single mutant strains and a double knockout in comparison to the wildtype. It also calculates the expected double knockout fitness ratio for comparison to the observed fitness ratio. This outputs a Colony_Size.csv file and Interaction_Score.csv file for each secondary gene within the pair.
+
+Ensure IRIS file names are in the format: `SecondaryGeneName_replicate.JPG.iris`
+
+E.g. `MexB_A.JPG.iris`
 
 ```
 
