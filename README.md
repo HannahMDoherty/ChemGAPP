@@ -44,9 +44,16 @@ There are two ways to run the tool:
 - The package module files may be downloaded and run as a python or bin files. To download the files run:
 ```
 git clone https://github.com/HannahMDoherty/ChemGAPP
+```
+- Navigate using `cd` to the `ChemGAPP_Package/` folder and run:
 
 ```
-
+pip install -r requirements.txt
+```
+or 
+```
+pip3 install -r requirements.txt
+```
 - Streamlit applications. 
   
   - The graphical interfaces can be run using streamlit. 
