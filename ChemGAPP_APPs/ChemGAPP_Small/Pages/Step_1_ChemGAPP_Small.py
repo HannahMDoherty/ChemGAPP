@@ -484,6 +484,18 @@ def new_order_changed():
                 del st.session_state["conds"]
                 del st.session_state["fnames"]
 
+if "max_size" not in st.session_state:
+        st.session_state.max_type = []
+def new_max_changed():
+        if st.session_state.new_max_type:
+            st.session_state.max_type = st.session_state.new_max_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
 # various input buttons to upload files or make customisations.
 uploaded_files = st.sidebar.file_uploader("Upload multiple IRIS files", accept_multiple_files=True)
 plate_info_files = st.sidebar.file_uploader("Upload multiple plate information files", accept_multiple_files=True)
@@ -496,7 +508,7 @@ iris_type = st.sidebar.radio(
 
 
 if iris_type == 'size':
-    max_size = st.sidebar.text_input('Optional: Max value for colony '+iris_type)
+    max_size = st.sidebar.text_input('Optional: Max value for colony '+iris_type, on_change=new_max_changed, key="new_max_type")
     if max_size:
         max_size = max_size
     else:
