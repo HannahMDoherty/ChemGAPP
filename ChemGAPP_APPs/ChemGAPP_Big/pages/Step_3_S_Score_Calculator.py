@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(layout="wide")
 st.title('ChemGAPP Big: S-Score Calculator')
 
-def s_scores_calc(ipt):
+def s_scores_calc(ipt,scale):
     nm = ipt
     nm = nm.reindex(sorted(nm.columns), axis=1)
     #replaces inf values with nan
@@ -116,24 +116,26 @@ def s_scores_calc(ipt):
     #adds columns back in for just the conditions and source plate numbers
     final_s_score.columns = (pd.MultiIndex.from_tuples(sorted(nm.columns.droplevel([2,3]).unique())))
     final_s_score = final_s_score.replace([np.inf, -np.inf], np.nan)
-    mlen = len(final_s_score)
-    ardf = np.zeros((mlen, 1))
-    ardf.shape = (mlen,1)
-    #scales everything such that the interquartile range of each column is equal to 1.35
-    for c in sorted(final_s_score.columns):
-        df1 = pd.DataFrame(final_s_score.xs(c,axis=1,drop_level=False))
-        ar1 = np.array(df1)
-        ar2 = np.array(df1)
-        mean = np.nanmean(ar1)
-        iqr = (np.nanpercentile(ar1,[75])-np.nanpercentile(ar1,[25]))
-        for i in range(len(ar1)):
-            ar2[i] = (ar1[i]*(1.35/iqr))
-        ar2.shape = (mlen,1)
-        ardf = np.concatenate((ardf,ar2), axis=1)
-    ardf = pd.DataFrame(ardf, index=final_s_score.index)
-    ardf = ardf.iloc[: , 1:]
-    ardf.columns = (pd.MultiIndex.from_tuples(sorted(final_s_score.columns)))
-    ardf = ardf[sorted(ardf)]
+    if scale == "Yes":
+        mlen = len(final_s_score)
+        ardf = np.zeros((mlen, 1))
+        ardf.shape = (mlen,1)
+        for c in sorted(final_s_score.columns):
+            df1 = pd.DataFrame(final_s_score.xs(c,axis=1,drop_level=False))
+            ar1 = np.array(df1)
+            ar2 = np.array(df1)
+            mean = np.nanmean(ar1)
+            iqr = (np.nanpercentile(ar1,[75])-np.nanpercentile(ar1,[25]))
+            for i in range(len(ar1)):
+                ar2[i] = (ar1[i]*(1.35/iqr))
+            ar2.shape = (mlen,1)
+            ardf = np.concatenate((ardf,ar2), axis=1)
+        ardf = pd.DataFrame(ardf, index=final_s_score.index)
+        ardf = ardf.iloc[: , 1:]
+        ardf.columns = (pd.MultiIndex.from_tuples(sorted(final_s_score.columns)))
+        ardf = ardf[sorted(ardf)]
+    if scale == "No":
+        ardf = final_s_score
     return ardf
 #renames the plate info file columns and adds row and column to index before sorting by index.
 def plate_info(file):
@@ -165,7 +167,9 @@ plate_info_files = st.sidebar.file_uploader("Upload Plate Information Files", ac
 genre = st.sidebar.radio(
      "Which dataset would you like to score?",
      ('None','Original', 'Curated', 'Both'))
-
+scaling = st.sidebar.radio(
+     "Would you like to scale the inter-quartile range to 1.35?",
+     ('Yes','No'))
 complete = st.sidebar.button(label="Begin!")
 if complete:
     if genre == 'Original':
@@ -173,7 +177,7 @@ if complete:
         element4 = my_expander2.write(st.session_state.normalised_dataset)
         elementss = st.info("Calculating S-Scores...")
         nm = st.session_state.normalised_dataset
-        ardf = s_scores_calc(nm)
+        ardf = s_scores_calc(nm,scaling)
         ardf.to_csv(st.session_state.outputfile+"_S_scores.csv")
         plate_info_files.sort(key=natural_keys)
         plate_DFs = []
@@ -221,7 +225,7 @@ if complete:
         element4 = my_expander2.write(st.session_state.normalised_curated_dataset)
         elementss = st.info("Calculating S-Scores...")
         nm = st.session_state.normalised_curated_dataset
-        ardf = s_scores_calc(nm)
+        ardf = s_scores_calc(nm,scaling)
         ardf.to_csv(st.session_state.outputfile+"_Curated_S_scores.csv")
         plate_info_files.sort(key=natural_keys)
         plate_DFs = []
@@ -270,7 +274,7 @@ if complete:
         element5 = my_expander3.write(st.session_state.normalised_curated_dataset)
         elementss = st.info("Calculating S-Scores...")
         nm = st.session_state.normalised_dataset
-        ardf = s_scores_calc(nm)
+        ardf = s_scores_calc(nm,scaling)
         ardf.to_csv(st.session_state.outputfile+"_S_scores.csv")
     
         plate_info_files.sort(key=natural_keys)
@@ -316,7 +320,7 @@ if complete:
         elementss = st.info("Calculating S-Scores...")
         
         nm = st.session_state.normalised_curated_dataset
-        ardf = s_scores_calc(nm)
+        ardf = s_scores_calc(nm,scaling)
         ardf.to_csv(st.session_state.outputfile+"_Curated_S_scores.csv")
         nm3 = pd.read_csv(st.session_state.outputfile+"_Curated_S_scores.csv",index_col=[0, 1], header=[0, 1])
         plates = {x[0] for x in nm3.columns}

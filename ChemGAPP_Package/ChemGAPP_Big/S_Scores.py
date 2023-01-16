@@ -7,11 +7,13 @@ parser = argparse.ArgumentParser(description="Computes the S-scores from the nor
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
 parser.add_argument("-o", "--OutputFile", help="A CSV file of the dataset as S-scores")
+parser.add_argument("-s", "--Scale", help="Scale scores to and inter-quartile range of 1.35. Options: True, False", default=True)
 args = vars(parser.parse_args())
 inputfile1 = args["InputFile"]
 outputfile1 = args["OutputFile"]
-
-def S_Scores(inputfile,outputfile):
+scale1 = args["Scale"]
+def S_Scores(inputfile,outputfile,scale):
+    print(scale)
     import pandas as pd
     import numpy as np
     nm = pd.read_csv(inputfile,
@@ -129,26 +131,28 @@ def S_Scores(inputfile,outputfile):
     #adds columns back in for just the conditions and source plate numbers
     final_s_score.columns = (pd.MultiIndex.from_tuples(sorted(nm.columns.droplevel([2,3]).unique())))
     final_s_score = final_s_score.replace([np.inf, -np.inf], np.nan)
-    mlen = len(final_s_score)
-    ardf = np.zeros((mlen, 1))
-    ardf.shape = (mlen,1)
-    #scales everything such that the interquartile range of each column is equal to 1.35
-    for c in sorted(final_s_score.columns):
-        df1 = pd.DataFrame(final_s_score.xs(c,axis=1,drop_level=False))
-        ar1 = np.array(df1)
-        ar2 = np.array(df1)
-        mean = np.nanmean(ar1)
-        iqr = (np.nanpercentile(ar1,[75])-np.nanpercentile(ar1,[25]))
-        for i in range(len(ar1)):
-            ar2[i] = (ar1[i]*(1.35/iqr))
-        ar2.shape = (mlen,1)
-        ardf = np.concatenate((ardf,ar2), axis=1)
-    ardf = pd.DataFrame(ardf, index=final_s_score.index)
-    ardf = ardf.iloc[: , 1:]
-    ardf.columns = (pd.MultiIndex.from_tuples(sorted(final_s_score.columns)))
-    ardf = ardf[sorted(ardf)]
-    ardf
-    ardf.to_csv(outputfile)
+    if scale == True:
+        mlen = len(final_s_score)
+        ardf = np.zeros((mlen, 1))
+        ardf.shape = (mlen,1)
+        #scales everything such that the interquartile range of each column is equal to 1.35
+        for c in sorted(final_s_score.columns):
+            df1 = pd.DataFrame(final_s_score.xs(c,axis=1,drop_level=False))
+            ar1 = np.array(df1)
+            ar2 = np.array(df1)
+            mean = np.nanmean(ar1)
+            iqr = (np.nanpercentile(ar1,[75])-np.nanpercentile(ar1,[25]))
+            for i in range(len(ar1)):
+                ar2[i] = (ar1[i]*(1.35/iqr))
+            ar2.shape = (mlen,1)
+            ardf = np.concatenate((ardf,ar2), axis=1)
+        ardf = pd.DataFrame(ardf, index=final_s_score.index)
+        ardf = ardf.iloc[: , 1:]
+        ardf.columns = (pd.MultiIndex.from_tuples(sorted(final_s_score.columns)))
+        ardf = ardf[sorted(ardf)]
+        ardf.to_csv(outputfile)
+    if scale == "False":
+        ardf = final_s_score
+        ardf.to_csv(outputfile)
     return ardf
-
-S_Scores(inputfile1,outputfile1)
+S_Scores(inputfile1,outputfile1,scale1)
