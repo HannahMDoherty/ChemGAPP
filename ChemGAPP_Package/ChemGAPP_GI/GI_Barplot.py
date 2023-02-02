@@ -89,7 +89,7 @@ def GI_BarPlot(Path,outputfile,primary_gene):
         boxax = sns.boxplot(showmeans=False,
                 meanline=False,
                 medianprops={'visible': False},
-                whiskerprops={'visible': False},
+                whiskerprops={'visible': False},whis=0,
                 data=m_s,
                 showfliers=False,
                 showbox=False,
