@@ -12,16 +12,20 @@ import os
 from bioinfokit.analys import stat
 from statannotations.Annotator import Annotator
 
-parser = argparse.ArgumentParser(description="Produces barplot displaying genetic interaction type.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-p", "--PATH", help="Path to Interaction Score Files")
-parser.add_argument("-o", "--OutputFile", help="A PDF file of the final bar plot.")
-parser.add_argument("-g", "--PrimaryGene", help="The primary interacting gene being compared")
-args = vars(parser.parse_args())
-outputfile1 = args["OutputFile"]
-path1 = args["PATH"]
-primary_gene1 = args["PrimaryGene"]
-def GI_BarPlot(Path,outputfile,primary_gene):
+def get_options():
+    parser = argparse.ArgumentParser(description="Produces barplot displaying genetic interaction type.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-p", "--PATH", help="Path to Interaction Score Files")
+    parser.add_argument("-o", "--OutputFile", help="A PDF file of the final bar plot.")
+    parser.add_argument("-g", "--PrimaryGene", help="The primary interacting gene being compared")
+    return parser.parse_args()
+    
+
+def GI_BarPlot():
+    options = get_options()
+    outputfile = options.OutputFile
+    Path = options.PATH
+    primary_gene = options.PrimaryGene
     directory = Path
     files = []
     #assigns all interaction score files within the the directory to a list.
@@ -112,4 +116,6 @@ def GI_BarPlot(Path,outputfile,primary_gene):
           fancybox=True, shadow=False, ncol=1,fontsize=14)
     plt.subplots_adjust(hspace=0.4, wspace=0.05)
     plt.savefig(outputfile, bbox_inches='tight')
-GI_BarPlot(path1,outputfile1,primary_gene1)
+
+if __name__ == "__main__":
+    main()

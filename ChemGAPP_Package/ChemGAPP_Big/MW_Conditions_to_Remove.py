@@ -3,23 +3,25 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Outputs a list of conditions which were removed at a certain chosen threshold for the Mann Whitney Condition Level test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="output from Mann_Whitney_Condition_Level.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
-parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of MW_Plates_to_Remove.py or Z_Plates_to_Remove.py or Variance_Conditions_to_Remove.py to remove more plates")
-parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
-parser.add_argument("-t", "--Threshold",type=int, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Condition.py.")
-args = vars(parser.parse_args())
-input_V1 = args["InputFile"]
-outpt1 = args["OutputFile"]
-input_original1 = args["Original_Dataset"]
-outpt_removed1 = args["Output_removed"]
-threshold1 = args["Threshold"]
+import pandas as pd
 
-
-def MW_conditions_to_remove(input_V,threshold,outpt,input_original,outpt_removed):
-    import pandas as pd
+def get_options():
+    parser = argparse.ArgumentParser(description="Outputs a list of conditions which were removed at a certain chosen threshold for the Mann Whitney Condition Level test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="output from Mann_Whitney_Condition_Level.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
+    parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of MW_Plates_to_Remove.py or Z_Plates_to_Remove.py or Variance_Conditions_to_Remove.py to remove more plates")
+    parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
+    parser.add_argument("-t", "--Threshold",type=float, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Condition.py.")
+    return parser.parse_args()
+    
+def main():
+    options = get_options()
+    input_V = options.InputFile
+    outpt = options.OutputFile
+    input_original = options.Original_Dataset
+    outpt_removed = options.Output_removed
+    threshold = options.Threshold
     #reads the output from Mann_Whitney_Condition_Level.py
     input_DF_2 = pd.read_csv(input_V)
     #reads the original dataset before normalisation
@@ -56,7 +58,7 @@ def MW_conditions_to_remove(input_V,threshold,outpt,input_original,outpt_removed
     n = m.drop(columns=lst3, axis=1)
     n.columns = n.columns.swaplevel(3,1)
     n.columns = n.columns.swaplevel(1,0)
-
     n.to_csv(outpt_removed)
     
-MW_conditions_to_remove(input_V1,threshold1,outpt1,input_original1,outpt_removed1)
+if __name__ == "__main__":
+    main()

@@ -7,17 +7,19 @@ import numpy as np
 import pandas as pd
 import re
 import os
-parser = argparse.ArgumentParser(description="Produces datasets with genetic interaction scores for genetic interaction screens",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--inputfiles", help="Path to IRIS files.")
-parser.add_argument("-p", "--PATH", help="Path for the output files.")
-parser.add_argument("-n", "--nameinfofiles", help="Path to plate information files. Plate info files should be txt files, with the columns: Row, Column, Strain, Replicate, Order, Set.")
-args = vars(parser.parse_args())
-indir1 = args["inputfiles"]
-path1 = args["PATH"]
-infodir1 = args["nameinfofiles"]
+def get_options():
+    parser = argparse.ArgumentParser(description="Produces datasets with genetic interaction scores for genetic interaction screens",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--inputfiles", help="Path to IRIS files.")
+    parser.add_argument("-p", "--PATH", help="Path for the output files.")
+    parser.add_argument("-n", "--nameinfofiles", help="Path to plate information files. Plate info files should be txt files, with the columns: Row, Column, Strain, Replicate, Order, Set.")
+    return parser.parse_args()
 
-def GI_dataset(indir,PATH,infodir):    
+def GI_dataset():    
+    options = get_options()
+    indir = options.inputfiles
+    PATH = options.PATH
+    infodir = options.nameinfofiles
     indir = os.path.expanduser(indir)                     
     m = None
     # cycles through iris files and uses filename to produce column headers.
@@ -114,4 +116,6 @@ def GI_dataset(indir,PATH,infodir):
             df = df.append(data, True)
         df1.to_csv((PATH+"/"+dfb.iloc[2].name[2]+"_Colony_sizes.csv"))
         df.to_csv((PATH+"/"+dfb.iloc[2].name[2]+"_Interaction_Scores.csv"))
-GI_dataset(indir1,path1,infodir1)
+
+if __name__ == "__main__":
+    main()

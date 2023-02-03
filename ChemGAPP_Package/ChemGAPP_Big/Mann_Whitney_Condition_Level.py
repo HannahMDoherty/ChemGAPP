@@ -3,17 +3,20 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="The variance of the replicate means for each condition is calculated and then the average of these variance is calculated for each plate within that conditions, i.e the variance between replicate plate A,B,C,D for plate 1 of condition A, and then the average of plate 1, 2, 3 etc. for condition A."
-                                 ,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The CSV file with the mean u statistics and p values for each replicate from Mann_Whitney_Plate_Level.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the mean variance values for the u statistic and p values of the mann-whitney test for each condition.")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
+import pandas as pd
+import numpy as np
 
-def Mann_Whitney_Condition_Level(inputfile,outputfile):
-    import pandas as pd
-    import numpy as np
+def get_options():
+    parser = argparse.ArgumentParser(description="The variance of the replicate means for each condition is calculated and then the average of these variance is calculated for each plate within that conditions, i.e the variance between replicate plate A,B,C,D for plate 1 of condition A, and then the average of plate 1, 2, 3 etc. for condition A."
+                                     ,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The CSV file with the mean u statistics and p values for each replicate from Mann_Whitney_Plate_Level.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the mean variance values for the u statistic and p values of the mann-whitney test for each condition.")
+    return parser.parse_args()
+
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
     #reads the CSV file with the mean u statistics and p values for each replicate from Mann_Whitney_Plate_Level.py
     Pmean = pd.read_csv(inputfile)
     Pmean = Pmean.set_index(['Condition','Plate','Batch','Replicate'])
@@ -43,4 +46,5 @@ def Mann_Whitney_Condition_Level(inputfile,outputfile):
     P_var_cond.to_csv(outputfile, index = False)
     return P_var_cond
 
-Mann_Whitney_Condition_Level(inputfile1,outputfile1)
+if __name__ == "__main__":
+    main()

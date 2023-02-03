@@ -3,19 +3,21 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description=" Compares each replicate colony to find outliers within colony size for each plate.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file of the dataset where colony sizes are replaced with the colony type values.")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
 
-def Z_Score(inputfile,outputfile):
-    import pandas as pd
-    import numpy as np
-    import scipy.stats as stats
+def get_options():
+    parser = argparse.ArgumentParser(description=" Compares each replicate colony to find outliers within colony size for each plate.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file of the dataset where colony sizes are replaced with the colony type values.")
+    return parser.parse_args()
 
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
     def z_score_method(df):
         #performs z-score test and between replicates of same mutant in 
         # same condition plate and takes the absolute value of the z-score value
@@ -78,4 +80,5 @@ def Z_Score(inputfile,outputfile):
     ABSN.to_csv(outputfile)
     return ABSN
 
-Z_Score(inputfile1,outputfile1)
+if __name__ == "__main__":
+    main()

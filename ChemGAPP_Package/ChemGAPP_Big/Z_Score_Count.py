@@ -3,17 +3,21 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Counts the number of each colony type within each plate and the percentage of each colony type.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The CSV output file from Z_Score.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the counts and percentages of the each colony type.")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
+import pandas as pd
+import numpy as np
 
-def Z_score_count(inputfile,outputfile):
-    import pandas as pd
-    import numpy as np
+def get_options():
+    parser = argparse.ArgumentParser(description="Counts the number of each colony type within each plate and the percentage of each colony type.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The CSV output file from Z_Score.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the counts and percentages of the each colony type.")
+    return parser.parse_args()
+    
+
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
     #reads the csv file of the datasets of Ns,Bs,Ss and Xs from Z_score.py
     ABSN = pd.read_csv(inputfile,
                       index_col=[0, 1],
@@ -54,4 +58,5 @@ def Z_score_count(inputfile,outputfile):
         zero_count.to_csv(outputfile, index=False)
     return zero_count
 
-Z_score_count(inputfile1,outputfile1)
+if __name__ == "__main__":
+    main()

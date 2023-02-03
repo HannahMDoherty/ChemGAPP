@@ -3,21 +3,25 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Takes folder of Iris files and produces Dataset for ChemGAPP",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-p", "--PATH", help="Path to folder which contains IRIS files, IRIS file names should be in the format: CONDITION-concentration-platenumber-batchnumber_replicate.JPG.iris")
-parser.add_argument("-o", "--outputfile", help="Name of output file, should be a .txt file")
-parser.add_argument("-it", "--IRISphenotype", help="IRIS phenotype from IRIS files you wish to analyse",default='size')
-args = vars(parser.parse_args())
-PATH1 = args["PATH"]
-outputfile1 = args["outputfile"]
-phen1 = args["IRISphenotype"]
+import os
+import sys
+import numpy as np
+import pandas as pd
 
-def Iris_to_dataset(PATH,outputfile,phen):    
-    import os
-    import sys
-    import numpy as np
-    import pandas as pd
+def get_options():
+    parser = argparse.ArgumentParser(description="Takes folder of Iris files and produces Dataset for ChemGAPP",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-p", "--PATH", help="Path to folder which contains IRIS files, IRIS file names should be in the format: CONDITION-concentration-platenumber-batchnumber_replicate.JPG.iris")
+    parser.add_argument("-o", "--outputfile", help="Name of output file, should be a .csv file")
+    parser.add_argument("-it", "--IRISphenotype", help="IRIS phenotype from IRIS files you wish to analyse",default='size')
+    return parser.parse_args()
+
+
+def main():    
+    options = get_options()
+    PATH = options.PATH
+    outputfile = options.outputfile
+    phen = options.IRISphenotype
     m = None
     # cycles through iris files and uses filename to produce column headers.
     indir = os.path.expanduser(PATH)
@@ -52,5 +56,6 @@ def Iris_to_dataset(PATH,outputfile,phen):
             
                 m = m.join(m1, how='inner')
     m.to_csv(outputfile)
-
-Iris_to_dataset(PATH1,outputfile1,phen1)
+    
+if __name__ == "__main__":
+    main()

@@ -3,32 +3,34 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Calculates the cosine similarity scores for the phenotypic profiles of genes from the same operon and genes from different operons. Produces a density plot of the cosine similarity scores for genes of the same and different operons. Produces an ROC curve testing models ability at different threshold. ",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The dataset with gene names added. Output from Add_gene_names.py")
-parser.add_argument("-o", "--OutputFile", help="List of genes compared and the cosine similarity score as well as if they belong to the same operon")
-parser.add_argument("-or", "--Output_ROC_curve", help="Plot of the ROC curve and AUC score.")
-parser.add_argument("-od", "--Output_Density_plot", help="Density plot of the cosine similarity scores for same and different operons.")
-parser.add_argument("-clus", "--Cluster_file", help="A CSV file containing the operon clusters for each gene within the bacterium of interest, where columns = (Cluster,Gene). The Genes must match the names assigned to the scored dataset.")
-args = vars(parser.parse_args())
-inpt1 = args["InputFile"]
-outpt1 = args["OutputFile"]
-Op_Clus1 = args["Cluster_file"]
-outroc1 = args["Output_ROC_curve"]
-outdens1 = args["Output_Density_plot"]
+import pandas as pd
+import random
+from scipy import spatial
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.patches as  mpatches
+from sklearn.metrics import auc
+import numpy as np
+import os
+import itertools as it 
+def get_options():
+    parser = argparse.ArgumentParser(description="Calculates the cosine similarity scores for the phenotypic profiles of genes from the same operon and genes from different operons. Produces a density plot of the cosine similarity scores for genes of the same and different operons. Produces an ROC curve testing models ability at different threshold. ",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The dataset with gene names added. Output from Add_gene_names.py")
+    parser.add_argument("-o", "--OutputFile", help="List of genes compared and the cosine similarity score as well as if they belong to the same operon")
+    parser.add_argument("-or", "--Output_ROC_curve", help="Plot of the ROC curve and AUC score.")
+    parser.add_argument("-od", "--Output_Density_plot", help="Density plot of the cosine similarity scores for same and different operons.")
+    parser.add_argument("-clus", "--Cluster_file", help="A CSV file containing the operon clusters for each gene within the bacterium of interest, where columns = (Cluster,Gene). The Genes must match the names assigned to the scored dataset.")
+    return parser.parse_args()
 
-def Cosine_Similarity(Op_Clus,inpt,outpt,outroc,outdens):
-    import pandas as pd
-    import random
-    from scipy import spatial
-    import re
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    import matplotlib.patches as  mpatches
-    from sklearn.metrics import auc
-    import numpy as np
-    import os
-    import itertools as it 
+def main():
+    options = get_options()
+    inpt = options.InputFile
+    outpt = options.OutputFile
+    Op_Clus = options.Cluster_file
+    outroc = options.Output_ROC_curve
+    outdens = options.Output_Density_plot
     outroc = os.path.expanduser(outroc)
     outdens = os.path.expanduser(outdens)
     #Open the operon cluster and s-score files
@@ -203,5 +205,5 @@ def Cosine_Similarity(Op_Clus,inpt,outpt,outroc,outdens):
     fig.suptitle(AUC_txt, fontsize=12, fontweight='bold')
     plt.savefig(outroc, bbox_inches='tight')
 
-
-Cosine_Similarity(Op_Clus1,inpt1,outpt1,outroc1,outdens1)
+if __name__ == "__main__":
+    main()

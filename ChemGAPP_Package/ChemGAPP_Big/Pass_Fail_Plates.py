@@ -3,28 +3,32 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="The output files of the Mann-Whitney plate level analysis and the Z score analysis are inputted. The files are tested to see which conditions fail at certain thresholds of Normality and Mann-Whitney p value.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-iz", "--InputFile_Z_Score", help="output file from Z_score_count.py")
-parser.add_argument("-imwp", "--InputFile_MWP", help="output file from Mann_Whitney_Plate_Level.py")
-parser.add_argument("-oz", "--OutputFile_Z_Score", help="A CSV file showing the plates and the thresholds at which they pass and fail for the Z-score test. Here normality percentages which are lower than the threshold tested fail.")
-parser.add_argument("-omwp", "--OutputFile_MWP", help="A CSV file showing the plates and the thresholds at which they pass and fail for the Mann-Whitney test. Here p values which are lower than the threshold tested fail.")
-parser.add_argument("-mo", "--Merged_Outputfile", help="A CSV file showing the plates and the thresholds at which they pass and fail for both.")
-args = vars(parser.parse_args())
-inptZ1 = args["InputFile_Z_Score"]
-otputZ1 = args["OutputFile_Z_Score"]
-inptMWP1 = args["InputFile_MWP"]
-otputMWP1 = args["OutputFile_MWP"]
-otpt_merge1 = args["Merged_Outputfile"]
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+from itertools import combinations
 
-def Pass_Fail_Plates(inptZ,inptMWP,otputZ,otputMWP,otpt_merge):
-    import pandas as pd
-    import numpy as np
-    import scipy.stats as stats
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    from itertools import combinations
-#### Calculating the Normlality threshold Pass and Fail values
+def get_options():
+    parser = argparse.ArgumentParser(description="The output files of the Mann-Whitney plate level analysis and the Z score analysis are inputted. The files are tested to see which conditions fail at certain thresholds of Normality and Mann-Whitney p value.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-iz", "--InputFile_Z_Score", help="output file from Z_score_count.py")
+    parser.add_argument("-imwp", "--InputFile_MWP", help="output file from Mann_Whitney_Plate_Level.py")
+    parser.add_argument("-oz", "--OutputFile_Z_Score", help="A CSV file showing the plates and the thresholds at which they pass and fail for the Z-score test. Here normality percentages which are lower than the threshold tested fail.")
+    parser.add_argument("-omwp", "--OutputFile_MWP", help="A CSV file showing the plates and the thresholds at which they pass and fail for the Mann-Whitney test. Here p values which are lower than the threshold tested fail.")
+    parser.add_argument("-mo", "--Merged_Outputfile", help="A CSV file showing the plates and the thresholds at which they pass and fail for both.")
+    return parser.parse_args()
+
+
+def main():
+    options = get_options()
+    inptZ = options.InputFile_Z_Score
+    otputZ = options.OutputFile_Z_Score
+    inptMWP = options.InputFile_MWP
+    otputMWP = options.OutputFile_MWP
+    otpt_merge = options.Merged_Outputfile
+    #### Calculating the Normality threshold Pass and Fail values
     zero_count = pd.read_csv(inptZ)
     zero_count = zero_count.set_index(['Condition','Plate','Replicate','Batch'])
     abnorm_p_f = pd.DataFrame(columns=['Filename','Condition','Plate','Replicate','Batch',
@@ -171,4 +175,5 @@ def Pass_Fail_Plates(inptZ,inptMWP,otputZ,otputMWP,otpt_merge):
     p_f_merge_reps.to_csv(otpt_merge, index=False)
     return p_f_merge_reps
 
-Pass_Fail_Plates(inptZ1,inptMWP1,otputZ1,otputMWP1,otpt_merge1)
+if __name__ == "__main__":
+    main()

@@ -14,45 +14,48 @@ import seaborn as sns, matplotlib.pyplot as plt
 from bioinfokit.analys import stat
 from statannotations.Annotator import Annotator
 
-parser = argparse.ArgumentParser(description="Analyses small scale chemical genomic screen data",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-p", "--PATH", help="Path to folder which contains IRIS files")
-parser.add_argument("-o", "--outputfile_prefix", help="Path and prefix for output file")
-parser.add_argument("-pf", "--PlateInfoPath", help="The path to the folder containing the plate info files.")
-parser.add_argument("-m", "--max_colony_size", help="Maximum colony size allowed, any colony larger than this will be removed",default=False,type=int)
-parser.add_argument("-wt", "--WildType", help="Name of wild type strain within plate info file.")
-parser.add_argument("-it", "--IRIS_type", help="Input IRIS morphology to test. Options: size,circularity,opacity", default="size")
-parser.add_argument("-col_plot", "--colourpalette", help="Name of Seaborn colour palette to use for the bar and swarm plots.", default="GnBu")
-parser.add_argument("-col_heat", "--colourheatmap", help="Name of Seaborn colour palette to use for the heatmap.", default="bwr_r")
-parser.add_argument("-wd", "--width", help="Figure width to use for the graphs.", default=5,type=int)
-parser.add_argument("-ht", "--height", help="Figure height to use for the graphs.", default=5,type=int)
-parser.add_argument("-r", "--rotation", help="X Axis label rotation", default=90,type=int)
-parser.add_argument("-cs", "--CircleSize", help="SwarmPlot circle size", default=2.5,type=float)
-parser.add_argument("-g", "--group", help="Group bar plots by strain or condition. Options = strain, condition.", default="condition")
-parser.add_argument("-pt", "--PlotType", help="Type of Plot. Options: barplot, swarmplot ", default="barplot")
-parser.add_argument("-rm","--remove_strain", help="txt file of strain names to remove separated by ';'. Names must match those in plate information file. E.g. mutant1;mutant2;mutant4",default=None)
-parser.add_argument("-ymax","--y_max", help="Maximum limit for y axis",default=None,type=float)
-parser.add_argument("-ymin","--y_min", help="Minimum limit for y axis",default=None,type=float)
-args = vars(parser.parse_args())
-PATH1 = args["PATH"]
-outputfile1 = args["outputfile_prefix"]
-PlateInfo1 = args["PlateInfoPath"]
-maximum_size = args["max_colony_size"]
-wildtype1 = args["WildType"]
-colour_palette = args["colourpalette"]
-colour_heatmap = args["colourheatmap"]
-IRIS1 = args["IRIS_type"]
-rote1 = args["rotation"]
-ht1 = args["height"]
-wd1 = args["width"]
-gr1 = args["group"]
-circ_size1 = args["CircleSize"]
-plottype1 = args["PlotType"]
-removestrains = args["remove_strain"]
-ymaximum = args["y_max"]
-yminimum = args["y_min"]
+def get_options():
+    parser = argparse.ArgumentParser(description="Analyses small scale chemical genomic screen data",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-p", "--PATH", help="Path to folder which contains IRIS files")
+    parser.add_argument("-o", "--outputfile_prefix", help="Path and prefix for output file")
+    parser.add_argument("-pf", "--PlateInfoPath", help="The path to the folder containing the plate info files.")
+    parser.add_argument("-m", "--max_colony_size", help="Maximum colony size allowed, any colony larger than this will be removed",default=False,type=int)
+    parser.add_argument("-wt", "--WildType", help="Name of wild type strain within plate info file.")
+    parser.add_argument("-it", "--IRIS_type", help="Input IRIS morphology to test. Options: size,circularity,opacity", default="size")
+    parser.add_argument("-col_plot", "--colourpalette", help="Name of Seaborn colour palette to use for the bar and swarm plots.", default="GnBu")
+    parser.add_argument("-col_heat", "--colourheatmap", help="Name of Seaborn colour palette to use for the heatmap.", default="bwr_r")
+    parser.add_argument("-wd", "--width", help="Figure width to use for the graphs.", default=5,type=int)
+    parser.add_argument("-ht", "--height", help="Figure height to use for the graphs.", default=5,type=int)
+    parser.add_argument("-r", "--rotation", help="X Axis label rotation", default=90,type=int)
+    parser.add_argument("-cs", "--CircleSize", help="SwarmPlot circle size", default=2.5,type=float)
+    parser.add_argument("-g", "--group", help="Group bar plots by strain or condition. Options = strain, condition.", default="condition")
+    parser.add_argument("-pt", "--PlotType", help="Type of Plot. Options: barplot, swarmplot ", default="barplot")
+    parser.add_argument("-rm","--remove_strain", help="txt file of strain names to remove separated by ';'. Names must match those in plate information file. E.g. mutant1;mutant2;mutant4",default=None)
+    parser.add_argument("-ymax","--y_max", help="Maximum limit for y axis",default=None,type=float)
+    parser.add_argument("-ymin","--y_min", help="Minimum limit for y axis",default=None,type=float)
+    return parser.parse_args()
 
-def ChemGAPP_Small(PATH,outputfile,PlateInfo,WT,IRIS,width1,height1,rote,group1,circ_size,plottype):  
+
+def ChemGAPP_Small():  
+    options = get_options()
+    PATH = options.PATH
+    outputfile = options.outputfile_prefix
+    PlateInfo = options.PlateInfoPath
+    maximum_size = options.max_colony_size
+    WT = options.WildType
+    colour_palette = options.colourpalette
+    colour_heatmap = options.colourheatmap
+    IRIS = options.IRIS_type
+    rote = options.rotation
+    height1 = options.height
+    width1 = options.width
+    group1 = options.group
+    circ_size = options.CircleSize
+    plottype = options.PlotType
+    removestrains = options.remove_strain
+    ymaximum = options.y_max
+    yminimum = options.y_min
     m = None
     indir = os.path.expanduser(PATH)
     # cycles through iris files and uses filename to produce column headers.
@@ -546,4 +549,6 @@ def ChemGAPP_Small(PATH,outputfile,PlateInfo,WT,IRIS,width1,height1,rote,group1,
     plt.savefig(outputfile1+"_"+IRIS+"_Heatmap.pdf", bbox_inches='tight')
     plt.clf()
     return df3
-ChemGAPP_Small(PATH1,outputfile1,PlateInfo1,wildtype1,IRIS1,wd1,ht1,rote1,gr1,circ_size1,plottype1)
+
+if __name__ == "__main__":
+    main()

@@ -3,18 +3,22 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="The variance of replicate colony sizes is calculated for each plate and these variance values are averaged for each plate within a condition.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file of the average variances for each condition.")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
 
-def Condition_Variance(inputfile,outputfile):
-    import pandas as pd
-    import numpy as np
-    import scipy.stats as stats
+def get_options():
+    parser = argparse.ArgumentParser(description="The variance of replicate colony sizes is calculated for each plate and these variance values are averaged for each plate within a condition.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file of the average variances for each condition.")
+    return parser.parse_args()
+
+
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
     m = pd.read_csv(inputfile,
                           index_col=[0, 1],
                           header=[0, 1, 2,3])
@@ -72,4 +76,5 @@ def Condition_Variance(inputfile,outputfile):
     ave_Var_cond.to_csv(outputfile,index=False)
     return ave_Var_cond
 
-Condition_Variance(inputfile1,outputfile1)
+if __name__ == "__main__":
+    main()

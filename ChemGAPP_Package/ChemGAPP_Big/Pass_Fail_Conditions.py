@@ -3,26 +3,30 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="The output files of the Mann-Whitney condition level analysis and the condition variance analysis are inputted. The files are tested to see which conditions fail at certain thresholds of variance and Mann-Whitney p value.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-iv", "--InputFile_Variance", help="Output file from Condition_Variance.py")
-parser.add_argument("-imwc", "--InputFile_MWC", help="Output file from Mann_Whitney_Condition_Level.py")
-parser.add_argument("-ov", "--OutputFile_Variance", help="A CSV file showing the conditions and the thresholds at which they pass and fail. Here variances which are greater than the threshold tested fail.")
-parser.add_argument("-omwc", "--OutputFile_MWC", help="A CSV file showing the conditions and the thresholds at which they pass and fail. Here p values which are lower than the threshold tested fail.")
-args = vars(parser.parse_args())
-inptV1 = args["InputFile_Variance"]
-otputV1 = args["OutputFile_Variance"]
-inptMWC1 = args["InputFile_MWC"]
-otputMWC1 = args["OutputFile_MWC"]
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+from itertools import combinations
 
-def Pass_Fail_Conditions(inptV,inptMWC,otputV,otputMWC):
-    import pandas as pd
-    import numpy as np
-    import scipy.stats as stats
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-    from itertools import combinations
-#### Calculating the Mann_Whitney P-Value threshold Pass and Fail values   
+def get_options():
+    parser = argparse.ArgumentParser(description="The output files of the Mann-Whitney condition level analysis and the condition variance analysis are inputted. The files are tested to see which conditions fail at certain thresholds of variance and Mann-Whitney p value.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-iv", "--InputFile_Variance", help="Output file from Condition_Variance.py")
+    parser.add_argument("-imwc", "--InputFile_MWC", help="Output file from Mann_Whitney_Condition_Level.py")
+    parser.add_argument("-ov", "--OutputFile_Variance", help="A CSV file showing the conditions and the thresholds at which they pass and fail. Here variances which are greater than the threshold tested fail.")
+    parser.add_argument("-omwc", "--OutputFile_MWC", help="A CSV file showing the conditions and the thresholds at which they pass and fail. Here p values which are lower than the threshold tested fail.")
+    return parser.parse_args()
+    
+
+def main():
+    options = get_options()
+    inptV = options.InputFile_Variance
+    otputV = options.OutputFile_Variance
+    inptMWC = options.InputFile_MWC
+    otputMWC = options.OutputFile_MWC
+    #### Calculating the Mann_Whitney P-Value threshold Pass and Fail values   
     Pmean = pd.read_csv(inptMWC)
     Pmean = Pmean.set_index(['Condition','Batch'])
     thres_ar = [x for x in sorted(Pmean['Mean Variance P-Value']) if x > 0]
@@ -43,10 +47,12 @@ def Pass_Fail_Conditions(inptV,inptMWC,otputV,otputMWC):
                                    'Mann_Whitney Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     Pmean_array = np.array(Pmean)
     plt2 = {x[0:5] for x in Pmean.index}
+    print(thres_array[5],thres_array[4],thres_array[3],thres_array[2],thres_array[1],thres_array[0])
     #Checks mean Variance p-value for each condition greater than thresholds
     #  and marks as F for fail or lower than threshold and marks as P for pass 
     # and creates dataset of Ps and Fs for the various thresholds
     for r,p in zip(range(len(Pmean_array)),sorted(plt2)):
+        print(Pmean_array[r][1])
         if Pmean_array[r][1] > thres_array[5]:
             PF5 = 'F' 
         if Pmean_array[r][1] > thres_array[4]:
@@ -59,17 +65,17 @@ def Pass_Fail_Conditions(inptV,inptMWC,otputV,otputMWC):
             PF1 = 'F'
         if Pmean_array[r][1] > thres_array[0]:
             PF0 = 'F' 
-        if Pmean_array[r][1] < thres_array[5]:
+        if Pmean_array[r][1] <= thres_array[5]:
             PF5 = 'P'
-        if Pmean_array[r][1] < thres_array[4]:
+        if Pmean_array[r][1] <= thres_array[4]:
             PF4 = 'P' 
-        if Pmean_array[r][1] < thres_array[3]:
+        if Pmean_array[r][1] <= thres_array[3]:
             PF3 = 'P'
-        if Pmean_array[r][1] < thres_array[2]:
+        if Pmean_array[r][1] <= thres_array[2]:
             PF2 = 'P' 
-        if Pmean_array[r][1] < thres_array[1]:
+        if Pmean_array[r][1] <= thres_array[1]:
             PF1 = 'P'
-        if Pmean_array[r][1] < thres_array[0]:
+        if Pmean_array[r][1] <= thres_array[0]:
             PF0 = 'P' 
         name = (p[0],p[1],PF0, PF1,PF2,PF3,PF4,PF5)
         columns = list(mwc_p_f)
@@ -118,17 +124,17 @@ def Pass_Fail_Conditions(inptV,inptMWC,otputV,otputMWC):
             PF4 = 'F'
         if varc_array [r] > thres_array[5]:
             PF5 = 'F' 
-        if varc_array [r] < thres_array[0]:
+        if varc_array [r] <= thres_array[0]:
             PF0 = 'P'
-        if varc_array [r] < thres_array[1]:
+        if varc_array [r] <= thres_array[1]:
             PF1 = 'P' 
-        if varc_array [r] < thres_array[2]:
+        if varc_array [r] <= thres_array[2]:
             PF2 = 'P'
-        if varc_array [r] < thres_array[3]:
+        if varc_array [r] <= thres_array[3]:
             PF3 = 'P' 
-        if varc_array [r] < thres_array[4]:
+        if varc_array [r] <= thres_array[4]:
             PF4 = 'P'
-        if varc_array [r] < thres_array[5]:
+        if varc_array [r] <= thres_array[5]:
             PF5 = 'P' 
         name = (p[0],p[1], PF0, PF1,PF2,PF3,PF4,PF5)
         columns = list(varc_p_f)
@@ -141,4 +147,6 @@ def Pass_Fail_Conditions(inptV,inptMWC,otputV,otputMWC):
     varc_p_f = varc_p_f.reset_index(drop=True)
     varc_p_f.to_csv(otputV, index=False)
 
-Pass_Fail_Conditions(inptV1,inptMWC1,otputV1,otputMWC1)
+if __name__ == "__main__":
+    main()
+# %%

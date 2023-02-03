@@ -3,23 +3,27 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description=" Outputs a list of plates which were removed at a certain chosen threshold for the Mann-Whitney test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="Input file is the mean output from Mann_Whitney_Plate_Level.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
-parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of Z_plates_to_remove.py to remove more plates")
-parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
-parser.add_argument("-t", "--Threshold", type = float, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Plate.py.")
-args = vars(parser.parse_args())
-input_mw1 = args["InputFile"]
-outpt1 = args["OutputFile"]
-input_original1 = args["Original_Dataset"]
-outpt_removed1 = args["Output_removed"]
-threshold1 = args["Threshold"]
+import pandas as pd
+import numpy as np
 
-def MW_plates_to_remove(input_mw,threshold,outpt,input_original,outpt_removed):
-    import pandas as pd
-    import numpy as np
+def get_options():
+    parser = argparse.ArgumentParser(description=" Outputs a list of plates which were removed at a certain chosen threshold for the Mann-Whitney test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="Input file is the mean output from Mann_Whitney_Plate_Level.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
+    parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of Z_plates_to_remove.py to remove more plates")
+    parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
+    parser.add_argument("-t", "--Threshold", type = float, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Plate.py.")
+    return parser.parse_args()
+
+
+def main():
+    options = get_options()
+    input_mw = options.InputFile
+    outpt = options.OutputFile
+    input_original = options.Original_Dataset
+    outpt_removed = options.Output_removed
+    threshold = options.Threshold
     #reads the output from Mann_Whitney_Plate_Level.py
     input_DF_2 = pd.read_csv(input_mw)
     #reads the original dataset before normalisation
@@ -54,5 +58,6 @@ def MW_plates_to_remove(input_mw,threshold,outpt,input_original,outpt_removed):
     n = m.drop(columns=lst3, axis=1)
     n.to_csv(outpt_removed)
     return n
-
-MW_plates_to_remove(input_mw1,threshold1,outpt1,input_original1,outpt_removed1)
+    
+if __name__ == "__main__":
+    main()

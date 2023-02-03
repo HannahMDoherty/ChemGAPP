@@ -3,23 +3,27 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Outputs a list of conditions which were removed at a certain chosen threshold for the variance test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="output from Condition_Variance.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
-parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of MW_plates_to_remove.py or Z_plates_to_remove.py to remove more plates")
-parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
-parser.add_argument("-t", "--Threshold",type=int, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Condition.py.")
-args = vars(parser.parse_args())
-input_V1 = args["InputFile"]
-outpt1 = args["OutputFile"]
-input_original1 = args["Original_Dataset"]
-outpt_removed1 = args["Output_removed"]
-threshold1 = args["Threshold"]
+import pandas as pd
+import numpy as np
 
-def Variance_conditions_to_remove(input_V,threshold,outpt,input_original,outpt_removed):
-    import pandas as pd
-    import numpy as np
+def get_options():
+    parser = argparse.ArgumentParser(description="Outputs a list of conditions which were removed at a certain chosen threshold for the variance test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="output from Condition_Variance.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the name of the plates that were removed and their file names.")
+    parser.add_argument("-od", "--Original_Dataset", help="The original .csv dataset used in the first stage or the output of MW_plates_to_remove.py or Z_plates_to_remove.py to remove more plates")
+    parser.add_argument("-or", "--Output_removed", help="A .csv dataset with detrimental plates removed.")
+    parser.add_argument("-t", "--Threshold",type=float, help="A chosen threshold, usually based off of the bar chart produced by Bar_plot_Condition.py.")
+    return parser.parse_args()
+
+
+def main():
+    options = get_options()
+    input_V = options.InputFile
+    outpt = options.OutputFile
+    input_original = options.Original_Dataset
+    outpt_removed = options.Output_removed
+    threshold = options.Threshold
     # reads output file from Condition_Variance.py
     input_DF_2 = pd.read_csv(input_V)
     #reads the original dataset before normalisation
@@ -56,5 +60,6 @@ def Variance_conditions_to_remove(input_V,threshold,outpt,input_original,outpt_r
     n.columns = n.columns.swaplevel(1,0)
     n.to_csv(outpt_removed)
     return n
-    
-Variance_conditions_to_remove(input_V1,threshold1,outpt1,input_original1,outpt_removed1)
+
+if __name__ == "__main__":
+    main()

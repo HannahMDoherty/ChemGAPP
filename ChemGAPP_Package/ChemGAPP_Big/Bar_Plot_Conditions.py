@@ -3,18 +3,23 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Produces a bar plot showing the counts of conditions with a certain number of plates lost at different thresholds of Variance and Mann-Whitney mean p-value variance.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The input file for the module. Uses the output files from Pass_Fail_Conditions.py, either Variance or Mann_Whitney.")
-parser.add_argument("-o", "--OutputPlot", help="Name of output file, a PDF of the bar chart")
-args = vars(parser.parse_args())
-passfailfile = args["InputFile"]
-outputplot = args["OutputPlot"]
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-def Bar_plot_Condition(pass_fail_file,otptplot):
-    import pandas as pd
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+def get_options():
+
+    parser = argparse.ArgumentParser(description="Produces a bar plot showing the counts of conditions with a certain number of plates lost at different thresholds of Variance and Mann-Whitney mean p-value variance.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The input file for the module. Uses the output files from Pass_Fail_Conditions.py, either Variance or Mann_Whitney.")
+    parser.add_argument("-o", "--OutputPlot", help="Name of output file, a PDF of the bar chart")
+    return parser.parse_args()
+
+def main():
+    options = get_options()
+    pass_fail_file = options.InputFile
+    otptplot = options.OutputPlot
+    
     #takes the pass fail file from Pass_Fail_Conditions.py, either Variance or Mann_Whitney.
     Pass_Fail = pd.read_csv(pass_fail_file)
     Pass_Fail = Pass_Fail.set_index(['Condition','Batch'])
@@ -49,4 +54,5 @@ def Bar_plot_Condition(pass_fail_file,otptplot):
     plt.savefig(otptplot, bbox_inches='tight')
     return bar
 
-Bar_plot_Condition(passfailfile,outputplot)
+if __name__ == "__main__":
+    main()

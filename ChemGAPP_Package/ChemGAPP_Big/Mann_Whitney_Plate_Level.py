@@ -3,21 +3,24 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Compares the distributions of the colony sizes of replicate plates of the same condition and determines if replicate plates have the same distribution based on the p value of the Mann whitney test.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py output")
-parser.add_argument("-o", "--OutputFile", help="A CSV file with the u statistics and p values for each comparison.")
-parser.add_argument("-o2", "--OutputFile_Mean", help="A CSV file with the mean u statistics and p values for each replicate")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
-outputfile21 = args["OutputFile_Mean"]
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
+
+def get_options():
+    parser = argparse.ArgumentParser(description="Compares the distributions of the colony sizes of replicate plates of the same condition and determines if replicate plates have the same distribution based on the p value of the Mann whitney test.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py output")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file with the u statistics and p values for each comparison.")
+    parser.add_argument("-o2", "--OutputFile_Mean", help="A CSV file with the mean u statistics and p values for each replicate")
+    return parser.parse_args()
 
 
-def Mann_Whitney_Plate_Level(inputfile,outputfile,outputfile2):
-    import pandas as pd
-    import numpy as np
-    import scipy.stats as stats
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
+    outputfile2 = options.OutputFile_Mean
     #opens the normalised dataset file
     m = pd.read_csv(inputfile,
                       index_col=[0, 1],
@@ -63,4 +66,5 @@ def Mann_Whitney_Plate_Level(inputfile,outputfile,outputfile2):
     Pmean.to_csv(outputfile2,index=False)   
     return Pmean
 
-Mann_Whitney_Plate_Level(inputfile1,outputfile1,outputfile21)
+if __name__ == "__main__":
+    main()

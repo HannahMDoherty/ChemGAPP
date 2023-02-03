@@ -4,29 +4,26 @@
 # In[ ]:
 import argparse
 from pickle import FALSE
-parser = argparse.ArgumentParser(description="Checks each plate individually to see if outer-edge normalisation is required due to plate effects.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The CSV file from Iris_to_dataset.py of the colony dataset with conditions across the top and row/column coordinates downwards")
-parser.add_argument("-o", "--OutputFile", help="CSV file of the normalised colony sizes.")
-parser.add_argument("-m", "--max_colony_size", help="Maximum colony size allowed, any colony larger than this will be set to this maximum",default=False,type=int)
-args = vars(parser.parse_args())
-inptfile = args["InputFile"]
-otptfile = args["OutputFile"]
-maximum_size = args["max_colony_size"]
+import pandas as pd
+import numpy as np
+import scipy
+import scipy.stats
+from scipy.stats import wilcoxon
+from scipy.stats import ranksums
 
-if maximum_size == False:
-    print("False")
-if maximum_size != False:
-    print(maximum_size)
+def get_options():
+    parser = argparse.ArgumentParser(description="Checks each plate individually to see if outer-edge normalisation is required due to plate effects.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The CSV file from Iris_to_dataset.py of the colony dataset with conditions across the top and row/column coordinates downwards")
+    parser.add_argument("-o", "--OutputFile", help="CSV file of the normalised colony sizes.")
+    parser.add_argument("-m", "--max_colony_size", help="Maximum colony size allowed, any colony larger than this will be set to this maximum",default=False,type=int)
+    return parser.parse_args()
 
-
-def Check_Normalisation(inputfile,outputfile):
-    import pandas as pd
-    import numpy as np
-    import scipy
-    import scipy.stats
-    from scipy.stats import wilcoxon
-    from scipy.stats import ranksums
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
+    maximum_size = options.max_colony_size
     m = pd.read_csv(inputfile,index_col=[0, 1],header=[0, 1, 2, 3])
     m = m.apply(pd.to_numeric)
     m = m[sorted(m)]
@@ -164,5 +161,6 @@ def Check_Normalisation(inputfile,outputfile):
     ardf = ardf[sorted(ardf)] 
     ardf.to_csv(outputfile)
     return ardf
-
-Check_Normalisation(inptfile,otptfile)
+    
+if __name__ == "__main__":
+    main()

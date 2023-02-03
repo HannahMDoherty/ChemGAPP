@@ -6,17 +6,22 @@ import argparse
 import os
 import pandas as pd
 import re
-parser = argparse.ArgumentParser(description="Add the gene names from the plate info files to make the final dataset. The plate info files must be in a folder by themselves and should be .txt files.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The CSV output of S_Scores.py")
-parser.add_argument("-o", "--Outputpath", help="A path a prefix for the output files E.g ~/Desktop/ChemGAPP would make ChemGAPP_Final_Dataset.txt .")
-parser.add_argument("-p", "--PATH", help="The path to the folder containing the plate info files.")
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["Outputpath"]
-PATH1 = args["PATH"]
 
-def Add_gene_names(PATH,inputfile,outputpath):
+def get_options():
+
+    parser = argparse.ArgumentParser(description="Add the gene names from the plate info files to make the final dataset. The plate info files must be in a folder by themselves and should be .txt files.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The CSV output of S_Scores.py")
+    parser.add_argument("-o", "--Outputpath", help="A path a prefix for the output files E.g ~/Desktop/ChemGAPP would make ChemGAPP_Final_Dataset.txt .")
+    parser.add_argument("-p", "--PATH", help="The path to the folder containing the plate info files.")
+    return parser.parse_args()
+
+def main():
+    options = get_options()
+    PATH = options.PATH
+    inputfile = options.InputFile
+    outputpath = options.Outputpath
+    
     def plate_info(file):
         p = pd.read_table(file)
         #renames the plate info file columns and adds row and column to index before sorting by index.
@@ -78,4 +83,5 @@ def Add_gene_names(PATH,inputfile,outputpath):
     df_averaged.to_csv(outputfile+"_Final_Dataset_Averaged.txt", sep='\t')
     return df_with_strains
 
-Add_gene_names(PATH1,inputfile1,outputfile1)
+if __name__ == "__main__":
+    main()

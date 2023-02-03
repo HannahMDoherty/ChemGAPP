@@ -3,19 +3,24 @@
 
 # In[ ]:
 import argparse
-parser = argparse.ArgumentParser(description="Computes the S-scores from the normalised dataset. ",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
-parser.add_argument("-o", "--OutputFile", help="A CSV file of the dataset as S-scores")
-parser.add_argument("-s", "--Scale", help="Scale scores to and inter-quartile range of 1.35. Options: True, False", default=True)
-args = vars(parser.parse_args())
-inputfile1 = args["InputFile"]
-outputfile1 = args["OutputFile"]
-scale1 = args["Scale"]
-def S_Scores(inputfile,outputfile,scale):
-    print(scale)
-    import pandas as pd
-    import numpy as np
+import pandas as pd
+import numpy as np
+
+def get_options():
+    parser = argparse.ArgumentParser(description="Computes the S-scores from the normalised dataset. ",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--InputFile", help="The normalised csv file from Check_Normalisation.py")
+    parser.add_argument("-o", "--OutputFile", help="A CSV file of the dataset as S-scores")
+    parser.add_argument("-s", "--Scale", help="Scale scores to and inter-quartile range of 1.35. Options: True, False", default=True)
+    return parser.parse_args()
+    
+    
+    
+def main():
+    options = get_options()
+    inputfile = options.InputFile
+    outputfile = options.OutputFile
+    scale = options.Scale
     nm = pd.read_csv(inputfile,
                       index_col=[0, 1],
                       header=[0, 1, 2, 3])
@@ -155,4 +160,6 @@ def S_Scores(inputfile,outputfile,scale):
         ardf = final_s_score
         ardf.to_csv(outputfile)
     return ardf
-S_Scores(inputfile1,outputfile1,scale1)
+
+if __name__ == "__main__":
+    main()
