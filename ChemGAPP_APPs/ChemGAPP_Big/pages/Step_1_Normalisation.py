@@ -454,7 +454,7 @@ if complete:
     ave_Var_plate = pd.DataFrame(columns=['Condition','Batch','Plate','Average Variance'])
     #calculates the average variance for each condition.
     for f in Var_DF.columns:
-        name = (f[1],f[0],f[2],np.nanmean(Var_DF[f].values.astype(float)))
+        name = (f[1],f[2],f[0],np.nanmean(Var_DF[f].values.astype(float)))
         columns = list(ave_Var_plate)
         data = []
         zipped = zip(columns, name)
@@ -506,17 +506,17 @@ if complete:
             PF60 = 'F' 
         if z_count_array[r][4] < 80:
             PF80 = 'F'
-        if z_count_array[r][4] > 20:
+        if z_count_array[r][4] >= 20:
             PF20 = 'P' 
-        if z_count_array[r][4] > 30:
+        if z_count_array[r][4] >= 30:
             PF30 = 'P'
-        if z_count_array[r][4] > 40:
+        if z_count_array[r][4] >= 40:
             PF40 = 'P' 
-        if z_count_array[r][4] > 50:
+        if z_count_array[r][4] >= 50:
             PF50 = 'P'
-        if z_count_array[r][4] > 60:
+        if z_count_array[r][4] >= 60:
             PF60 = 'P' 
-        if z_count_array[r][4] > 80:
+        if z_count_array[r][4] >= 80:
             PF80 = 'P'
         name = ((str(p[0]).replace(" ","-").replace(".",",")+'-'+str(p[1])+'-'+str(p[3]).replace("Batch","")+'_'+str(p[2])+'.JPG.iris'),p[0]
                 ,p[1],p[2],p[3], PF20,PF30,PF40,PF50,PF60,PF80)
@@ -564,17 +564,17 @@ if complete:
             PF1 = 'F'
         if Pmean_array[r][1] < thres_array[0]:
             PF0 = 'F' 
-        if Pmean_array[r][1] > thres_array[5]:
+        if Pmean_array[r][1] >= thres_array[5]:
             PF5 = 'P'
-        if Pmean_array[r][1] > thres_array[4]:
+        if Pmean_array[r][1] >= thres_array[4]:
             PF4 = 'P' 
-        if Pmean_array[r][1] > thres_array[3]:
+        if Pmean_array[r][1] >= thres_array[3]:
             PF3 = 'P'
-        if Pmean_array[r][1] > thres_array[2]:
+        if Pmean_array[r][1] >= thres_array[2]:
             PF2 = 'P' 
-        if Pmean_array[r][1] > thres_array[1]:
+        if Pmean_array[r][1] >= thres_array[1]:
             PF1 = 'P'
-        if Pmean_array[r][1] > thres_array[0]:
+        if Pmean_array[r][1] >= thres_array[0]:
             PF0 = 'P' 
         name = ((str(p[0]).replace(" ","-").replace(".",",")+'-'+str(p[1])+'-'+str(p[3]).replace("Batch","")+'_'+str(p[2])+'.JPG.iris'),p[0]
                 ,p[1],p[2],p[3], PF0, PF1,PF2,PF3,PF4,PF5)
@@ -699,17 +699,17 @@ if complete:
             PF1 = 'F'
         if Pmean_array[r][1] > thres_array[0]:
             PF0 = 'F'
-        if Pmean_array[r][1] < thres_array[5]:
+        if Pmean_array[r][1] <= thres_array[5]:
             PF5 = 'P'
-        if Pmean_array[r][1] < thres_array[4]:
+        if Pmean_array[r][1] <= thres_array[4]:
             PF4 = 'P'
-        if Pmean_array[r][1] < thres_array[3]:
+        if Pmean_array[r][1] <= thres_array[3]:
             PF3 = 'P'
-        if Pmean_array[r][1] < thres_array[2]:
+        if Pmean_array[r][1] <= thres_array[2]:
             PF2 = 'P'
-        if Pmean_array[r][1] < thres_array[1]:
+        if Pmean_array[r][1] <= thres_array[1]:
             PF1 = 'P'
-        if Pmean_array[r][1] < thres_array[0]:
+        if Pmean_array[r][1] <= thres_array[0]:
             PF0 = 'P' 
         name = (p[0],p[1],PF0, PF1,PF2,PF3,PF4,PF5)
         columns = list(mwc_p_f)
@@ -757,17 +757,17 @@ if complete:
             PF4 = 'F'
         if varc_array [r] > thres_array[5]:
             PF5 = 'F' 
-        if varc_array [r] < thres_array[0]:
+        if varc_array [r] <= thres_array[0]:
             PF0 = 'P'
-        if varc_array [r] < thres_array[1]:
+        if varc_array [r] <= thres_array[1]:
             PF1 = 'P' 
-        if varc_array [r] < thres_array[2]:
+        if varc_array [r] <= thres_array[2]:
             PF2 = 'P'
-        if varc_array [r] < thres_array[3]:
+        if varc_array [r] <= thres_array[3]:
             PF3 = 'P' 
-        if varc_array [r] < thres_array[4]:
+        if varc_array [r] <= thres_array[4]:
             PF4 = 'P'
-        if varc_array [r] < thres_array[5]:
+        if varc_array [r] <= thres_array[5]:
             PF5 = 'P' 
         name = (p[0],p[1], PF0, PF1,PF2,PF3,PF4,PF5)
         columns = list(varc_p_f)
