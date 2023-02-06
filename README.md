@@ -164,7 +164,9 @@ The commmand provides a link to the following front web application:
 
 ###### If downloaded via pip commands can be initiated from any folder. The help instruction is called using -h option. E.g:
 
+```
 iris_to_dataset [-h] [-p PATH] [-o OUTPUTFILE]
+```
 
 ###### Python files are initiated using the python command. The help instruction is called using -h option. E.g:
 ```
