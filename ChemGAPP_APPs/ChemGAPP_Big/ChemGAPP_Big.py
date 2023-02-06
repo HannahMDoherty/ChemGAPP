@@ -6,7 +6,7 @@ st.set_page_config(layout="wide")
 #st.markdown("# Main page ")
 #st.sidebar.markdown("# Main page")
 
-image = Image.open('logo.png')
+image = Image.open('Logo.png')
 st.image(image, use_column_width=True)
 # Page title
 st.markdown("""
