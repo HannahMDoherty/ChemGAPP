@@ -43,11 +43,17 @@ There are two ways to run the tool, via the package files or by running the stre
 
 ### Package:
 
-- The package module files may be downloaded and run as a python or bin files. To download the files run:
+- The easiest way to install the package is via `pip` :
+
+```
+pip install ChemGAPP
+```
+
+- The package module files can also be downloaded and run as a python or bin files. To download the files run:
 ```
 git clone https://github.com/HannahMDoherty/ChemGAPP
 ```
-- Navigate using `cd` to the `ChemGAPP_Package/` folder and run:
+- Then run:
 
 ```
 pip install -r requirements.txt
@@ -83,7 +89,7 @@ The commmand provides a link to the following front web application:
 
 ```
 pip install -r requirements.txt
-streamlit run ChemGAPP_Small.py
+streamlit run chemgapp_small
 ```
 
 The commmand provides a link to the following front web application:
@@ -109,33 +115,33 @@ The commmand provides a link to the following front web application:
 #### Python Modules
 
 ##### ChemGAPP Big
-1. [Iris_to_Dataset.py](#Iris_to_dataset)
-2. [Check_Normalisation.py](#Check_Normalisation)
-3. [Z_Score.py](#Z_Score)
-4. [Z_Score_Count.py](#Z_Score_Count)
-5. [Mann_Whitney_Plate_Level.py](#Mann_Whitney_Plate_Level)
-6. [Mann_Whitney_Condition_Level.py](#Mann_Whitney_Condition_Level)
-7. [Condition_Variance.py](#Condition_Variance)
-8. [Pass_Fail_Conditions.py](#Pass_Fail_Conditions)
-9. [Pass_Fail_Plates.py](#Pass_Fail_Plates)
-10. [Bar_Plot_Plate.py](#Bar_Plot_Plate)
-11. [Bar_Plot_Conditions.py](#Bar_Plot_Conditions)
-12. [MW_Plates_to_Remove.py](#MW_Plates_to_Remove)
-13. [Z_Plates_to_Remove.py](#Z_Plates_to_Remove)
-14. [MW_Conditions_to_Remove.py](#MW_Conditions_to_Remove)
-15. [Variance_Conditions_to_Remove.py](#Variance_Conditions_to_Remove)
-16. [S_Scores.py](#S_Scores)
-17. [Add_Gene_Names.py](#Add_Gene_Names)
-18. [Cosine_Similarity.py](#Cosine_Similarity)
+1. [iris_to_dataset](#Iris_to_dataset)
+2. [check_normalisation](#Check_Normalisation)
+3. [z_score](#Z_Score)
+4. [z_score_count](#Z_Score_Count)
+5. [mw_plate_level](#Mann_Whitney_Plate_Level)
+6. [mw_condition_level](#Mann_Whitney_Condition_Level)
+7. [condition_variance](#Condition_Variance)
+8. [pass_fail_conditions](#Pass_Fail_Conditions)
+9. [pass_fail_plates](#Pass_Fail_Plates)
+10. [bar_plot_plates](#Bar_Plot_Plate)
+11. [bar_plot_conditions](#Bar_Plot_Conditions)
+12. [mw_plates_to_remove](#MW_Plates_to_Remove)
+13. [z_plates_to_remove](#Z_Plates_to_Remove)
+14. [MW_Conditions_to_Remove](#MW_Conditions_to_Remove)
+15. [variance_conditions_to_remove](#Variance_Conditions_to_Remove)
+16. [s_scores](#S_Scores)
+17. [add_gene_names](#Add_Gene_Names)
+18. [cosine_similarity](#Cosine_Similarity)
 
 ##### ChemGAPP Small
 
-1. [ChemGAPP_Small.py](#ChemGAPP_Small)
+1. [chemgapp_small](#ChemGAPP_Small)
 
 ##### ChemGAPP GI
 
-1. [GI_Dataset.py](#GI_Dataset)
-2. [GI_BarPlot.py](#GI_BarPlot)
+1. [gi_dataset](#GI_Dataset)
+2. [gi_barplot](#GI_BarPlot)
 
 #### Streamlit APPs
 
@@ -148,13 +154,17 @@ The commmand provides a link to the following front web application:
 
 ##### ChemGAPP Small
 
-1. [Step_1_ChemGAPP_Small.py](#Step_1_ChemGAPP_Small)
+1. [Step_1_chemgapp_small](#Step_1_ChemGAPP_Small)
 
 ##### ChemGAPP GI
 
 1. [Step_1_Interaction_Scores.py](#Step_1_Interaction_Scores)
 2. [Step_2_Bar_Plot.py](#Step_2_Bar_Plot)
 
+
+###### If downloaded via pip commands can be initiated from any folder. The help instruction is called using -h option. E.g:
+
+iris_to_dataset [-h] [-p PATH] [-o OUTPUTFILE]
 
 ###### Python files are initiated using the python command. The help instruction is called using -h option. E.g:
 ```
@@ -169,7 +179,7 @@ python Iris_to_Dataset.py [-h] [-p PATH] [-o OUTPUTFILE]
 
 `Colony Size is stated as the phenotype within the below examples for ease. However, any Iris phenotype (e.g opacity, circularity etc) can be analysed`
 
-#### Iris_to_Dataset.py <a name="Iris_to_dataset"></a>
+#### iris_to_dataset <a name="Iris_to_dataset"></a>
 
 Takes a directory of Iris files and turns them into the combined .csv dataset used for normalisation. 
 
@@ -205,7 +215,7 @@ E.g. `AMPICILLIN-0,5 mM-1-1_B.JPG.iris`
 
 
 ```
-usage: Iris_to_Dataset.py [-h] [-p PATH] [-o OUTPUTFILE]
+usage: iris_to_dataset [-h] [-p PATH] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -222,14 +232,14 @@ Required arguments:
 
 ```
     
-#### Check_Normalisation.py <a name="Check_Normalisation"></a>
+#### check_normalisation <a name="Check_Normalisation"></a>
 
 Checks each plate individually to see if outer-edge normalisation is required due to plate effects. The module uses the wilcoxson rank sum test to determine if the distribution of outer edge colony sizes, e.g colony size, are the same as the inner colony sizes. If the distributions differ, the outer edge is normalised such that the row or column median of each outer edge colony is equal to the Plate Middle Mean (PMM). The PMM is equal to the mean colony size of all colonies within the middle of the plate within the 40th to 60th percentile of size. Following this, all plates are normalised such that all colonies are scaled to adjust the PMM to the medain colony size of all colonies within the dataset. 
 
 False zero values, are also changed to NaNs, false zero values are values where a colony has a size of zero but other replicates within the condition are not. This is likely due to pinning defects. 
 
 ```
-usage: Check_Normalisation.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: check_normalisation [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -241,54 +251,54 @@ Required arguments:
                         CSV file of the normalised colony sizes. (default: None)
 ```
 
-#### Z_Score.py <a name="Z_Score"></a>
+#### z_score <a name="Z_Score"></a>
 
 Compares each replicate colony to find outliers within colony size for each plate. Outliers include, colonies smaller than the mean of the replicates (S), colonies bigger than the mean of the replicates (B) and NaN values (X). 
 
 ```
-usage: Z_Score.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: z_score [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The normalised csv file from Check_Normalisation.py (default: None)
+                        The normalised csv file from check_normalisation (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file of the dataset where colony sizes are replaced with the colony type values. (default: None)
 
 ```
 
-#### Z_Score_Count.py <a name="Z_Score_Count"></a>
+#### z_score_count <a name="Z_Score_Count"></a>
 
 Counts the number of each colony type within each plate and the percentage of each colony type. 
 
 ```
-usage: Z_Score_Count.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: z_score_count [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The CSV output file from Z_Score.py (default: None)
+                        The CSV output file from z_score (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the counts and percentages of the each colony type. (default: None)
 ```
 
-#### Mann_Whitney_Plate_Level.py <a name="Mann_Whitney_Plate_Level"></a>
+#### mw_plate_level <a name="Mann_Whitney_Plate_Level"></a>
 
 Compares the distributions of the colony sizes of replicate plates of the same condition and determines if replicate plates have the same distribution based on the p value of the Mann whitney test. A p-value < ⍺ indicates that the two distributions differ with statistical signifcance. The mean p-value is then averaged for each replicate, e.g average(A vs B, A vs C, A vs D) = replicate mean of A. 
 
 ```
-usage: Mann_Whitney_Plate_Level.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-o2 OUTPUTFILE_MEAN]
+usage: mw_plate_level [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-o2 OUTPUTFILE_MEAN]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The normalised csv file from Check_Normalisation.py output (default:None)
+                        The normalised csv file from check_normalisation output (default:None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the u statistics and p-values for each comparison. (default: None)
   -o2 OUTPUTFILE_MEAN, --OutputFile_Mean OUTPUTFILE_MEAN
@@ -296,72 +306,72 @@ Required arguments:
 
 ``` 
 
-#### Mann_Whitney_Condition_Level.py <a name="Mann_Whitney_Condition_Level"></a>
+#### mw_condition_level <a name="Mann_Whitney_Condition_Level"></a>
 
 The variance of the replicate means for each condition is calculated and then the average of these variance is calculated for each plate within that conditions, i.e the variance between replicate plate A,B,C,D for plate 1 of condition A, and then the average of plate 1, 2, 3 etc. for condition A. 
 
 ```
-usage: Mann_Whitney_Condition_Level.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: mw_condition_level [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The CSV file with the mean u statistics and p values for each replicate from Mann_Whitney_Plate_Level.py (default: None)
+                        The CSV file with the mean u statistics and p values for each replicate from mw_plate_level (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the mean variance values for the u statistic and p values of the mann-whitney test for each condition. (default: None)
 ```
-#### Condition_Variance.py <a name="Condition_Variance"></a>
+#### condition_variance <a name="Condition_Variance"></a>
 
 The variance of replicate colony sizes is calculated for each plate and these variance values are averaged for each plate within a condition. 
 
 ```
-usage: Condition_Variance.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: condition_variance [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The normalised csv file from Check_Normalisation.py (default: None)
+                        The normalised csv file from check_normalisation (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file of the average variances for each condition. (default: None)
 ```
-#### Pass_Fail_Conditions.py <a name="Pass_Fail_Conditions"></a>
+#### pass_fail_conditions <a name="Pass_Fail_Conditions"></a>
 
 The output files of the Mann-Whitney condition level analysis and the condition variance analysis are inputted. The files are tested to see which conditions fail at certain thresholds of variance and Mann-Whitney p value. 
 
 ```
-usage: Pass_Fail_Conditions.py [-h] [-iv INPUTFILE_VARIANCE] [-imwc INPUTFILE_MWC] [-ov OUTPUTFILE_VARIANCE] [-omwc OUTPUTFILE_MWC]
+usage: pass_fail_conditions [-h] [-iv INPUTFILE_VARIANCE] [-imwc INPUTFILE_MWC] [-ov OUTPUTFILE_VARIANCE] [-omwc OUTPUTFILE_MWC]
 
 optional arguments:
   -h, --help            show this help message and exit
   -iv INPUTFILE_VARIANCE, --InputFile_Variance INPUTFILE_VARIANCE
-                        Output file from Condition_Variance.py (default: None)
+                        Output file from condition_variance (default: None)
   -imwc INPUTFILE_MWC, --InputFile_MWC INPUTFILE_MWC
-                        Output file from Mann_Whitney_Condition_Level.py (default: None)
+                        Output file from mw_condition_level (default: None)
   -ov OUTPUTFILE_VARIANCE, --OutputFile_Variance OUTPUTFILE_VARIANCE
                         A CSV file showing the conditions and the thresholds at which they pass and fail. Here variances which are greater than the threshold tested fail. (default: None)
   -omwc OUTPUTFILE_MWC, --OutputFile_MWC OUTPUTFILE_MWC
                         A CSV file showing the conditions and the thresholds at which they pass and fail. Here p values which are lower than the threshold tested fail. (default: None)
 ```
 
-#### Pass_Fail_Plates.py <a name="Pass_Fail_Plates"></a>
+#### pass_fail_plates <a name="Pass_Fail_Plates"></a>
 
 The output files of the Mann-Whitney plate level analysis and the Z score analysis are inputted. The files are tested to see which conditions fail at certain thresholds of Normality and Mann-Whitney p value.
 
 ```
-usage: Pass_Fail_Plates.py [-h] [-iz INPUTFILE_Z_SCORE] [-imwp INPUTFILE_MWP] [-oz OUTPUTFILE_Z_SCORE] [-omwp OUTPUTFILE_MWP] [-mo MERGED_OUTPUTFILE]
+usage: pass_fail_plates [-h] [-iz INPUTFILE_Z_SCORE] [-imwp INPUTFILE_MWP] [-oz OUTPUTFILE_Z_SCORE] [-omwp OUTPUTFILE_MWP] [-mo MERGED_OUTPUTFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -iz INPUTFILE_Z_SCORE, --InputFile_Z_Score INPUTFILE_Z_SCORE
-                        output file from Z_score_count.py (default: None)
+                        output file from z_score_count (default: None)
   -imwp INPUTFILE_MWP, --InputFile_MWP INPUTFILE_MWP
-                        output file from Mann_Whitney_Plate_Level.py (default: None)
+                        output file from mw_plate_level (default: None)
   -oz OUTPUTFILE_Z_SCORE, --OutputFile_Z_Score OUTPUTFILE_Z_SCORE
                         A CSV file showing the plates and the thresholds at which they pass and fail for the Z-score test. Here normality percentages which are lower than the threshold tested fail. (default: None)
   -omwp OUTPUTFILE_MWP, --OutputFile_MWP OUTPUTFILE_MWP
@@ -370,7 +380,7 @@ Required arguments:
                         A CSV file showing the plates and the thresholds at which they pass and fail for both. (default: None)
 ```
 
-#### Bar_Plot_Plate.py <a name="Bar_Plot_Plate"></a>
+#### bar_plot_plates <a name="Bar_Plot_Plate"></a>
 
 Produces a bar plot showing the counts of conditions with a certain number of plates lost at different thresholds of normality (z-score) and Mann-Whitney p-value.
 
@@ -382,92 +392,92 @@ optional arguments:
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The input file for the module. Uses the merged output file from Pass_Fail_Plates.py (default: None)
+                        The input file for the module. Uses the merged output file from pass_fail_plates (default: None)
   -o OUTPUTPLOT, --OutputPlot OUTPUTPLOT
                         Name of output file, a PDF of the bar chart (default: None)
 
 ```
 
-#### Bar_Plot_Conditions.py <a name="Bar_Plot_Conditions"></a>
+#### bar_plot_conditions <a name="Bar_Plot_Conditions"></a>
 
 Produces a bar plot showing the counts of conditions with a certain number of plates lost at different thresholds of Variance and Mann-Whitney mean p-value variance .
 
 ```
-usage: Bar_Plot_Conditions.py [-h] [-i INPUTFILE] [-o OUTPUTPLOT]
+usage: bar_plot_conditions [-h] [-i INPUTFILE] [-o OUTPUTPLOT]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The input file for the module. Uses the output files from Pass_Fail_Conditions.py, either Variance or Mann_Whitney. (default: None)
+                        The input file for the module. Uses the output files from pass_fail_conditions, either Variance or Mann_Whitney. (default: None)
   -o OUTPUTPLOT, --OutputPlot OUTPUTPLOT
                         Name of output file, a PDF of the bar chart (default: None)
 ```
 
-#### MW_Plates_to_Remove.py <a name="MW_Plates_to_Remove"></a>
+#### mw_plates_to_remove <a name="MW_Plates_to_Remove"></a>
 
 Outputs a list of plates which were removed at a certain chosen threshold for the Mann-Whitney test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed. 
 
 ```
-usage: MW_Plates_to_Remove.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
+usage: mw_plates_to_remove [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        Input file is the mean output from Mann_Whitney_Plate_Level.py (default: None)
+                        Input file is the mean output from mw_plate_level (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the name of the plates that were removed and their file names. (default: None)
   -od ORIGINAL_DATASET, --Original_Dataset ORIGINAL_DATASET
-                        The original .csv dataset used in the first stage or the output of Z_plates_to_remove.py to remove more plates (default: None)
+                        The original .csv dataset used in the first stage or the output of z_plates_to_remove to remove more plates (default: None)
   -or OUTPUT_REMOVED, --Output_removed OUTPUT_REMOVED
                         A .csv dataset with detrimental plates removed. (default: None)
   -t THRESHOLD, --Threshold THRESHOLD
-                        A chosen threshold, usually based off of the bar chart produced by Bar_plot_Plate.py. (default: None)
+                        A chosen threshold, usually based off of the bar chart produced by bar_plot_plates. (default: None)
 ```
 
-#### Z_Plates_to_Remove.py <a name="Z_Plates_to_Remove"></a>
+#### z_plates_to_remove <a name="Z_Plates_to_Remove"></a>
     
 Outputs a list of plates which were removed at a certain chosen threshold for the Z-score test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed. 
 
 ```
-usage: Z_Plates_to_Remove.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
+usage: z_plates_to_remove [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        output from Z_score_count.py (default: None)
+                        output from z_score_count (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the name of the plates that were removed and their file names. (default: None)
   -od ORIGINAL_DATASET, --Original_Dataset ORIGINAL_DATASET
-                        The original .csv dataset used in the first stage or the output of MW_plates_to_remove.py to remove more plates (default: None)
+                        The original .csv dataset used in the first stage or the output of mw_plates_to_remove to remove more plates (default: None)
   -or OUTPUT_REMOVED, --Output_removed OUTPUT_REMOVED
                         A .csv dataset with detrimental plates removed. (default: None)
   -t THRESHOLD, --Threshold THRESHOLD
-                        A chosen threshold, usually based off of the bar chart produced by Bar_plot_Plate.py. (default: None)
+                        A chosen threshold, usually based off of the bar chart produced by bar_plot_plates. (default: None)
 ```
 
-#### MW_Conditions_to_Remove.py <a name="MW_Conditions_to_Remove"></a>
+#### mw_conditions_to_remove <a name="MW_Conditions_to_Remove"></a>
 
 Outputs a list of conditions which were removed at a certain chosen threshold for the Mann Whitney Condition Level test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.
 
 ```
-usage: MW_Conditions_to_Remove.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
+usage: mw_conditions_to_remove [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        output from Mann_Whitney_Condition_Level.py (default: None)
+                        output from mw_condition_level (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the name of the plates that were removed and their file names. (default: None)
   -od ORIGINAL_DATASET, --Original_Dataset ORIGINAL_DATASET
-                        The original .csv dataset used in the first stage or the output of MW_Plates_to_Remove.py or Z_Plates_to_Remove.py or Variance_Conditions_to_Remove.py to remove more plates (default: None)
+                        The original .csv dataset used in the first stage or the output of mw_plates_to_remove or z_plates_to_remove or variance_conditions_to_remove to remove more plates (default: None)
   -or OUTPUT_REMOVED, --Output_removed OUTPUT_REMOVED
                         A .csv dataset with detrimental plates removed. (default: None)
   -t THRESHOLD, --Threshold THRESHOLD
@@ -475,23 +485,23 @@ Required arguments:
 ```
 
 
-#### Variance_Conditions_to_Remove.py <a name="Variance_Conditions_to_Remove"></a>
+#### variance_conditions_to_remove <a name="Variance_Conditions_to_Remove"></a>
 
 Outputs a list of conditions which were removed at a certain chosen threshold for the variance test. Also outputs a new dataset to go back into the process of normalisation and scoring, but with detrimental plates removed.
 
 ```
-usage: Variance_conditions_to_remove.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
+usage: variance_conditions_to_remove [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-od ORIGINAL_DATASET] [-or OUTPUT_REMOVED] [-t THRESHOLD]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        output from Condition_Variance.py (default: None)
+                        output from condition_variance (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file with the name of the plates that were removed and their file names. (default: None)
   -od ORIGINAL_DATASET, --Original_Dataset ORIGINAL_DATASET
-                        The original .csv dataset used in the first stage or the output of MW_plates_to_remove.py or Z_plates_to_remove.py to remove more plates (default: None)
+                        The original .csv dataset used in the first stage or the output of mw_plates_to_remove or z_plates_to_remove to remove more plates (default: None)
   -or OUTPUT_REMOVED, --Output_removed OUTPUT_REMOVED
                         A .csv dataset with detrimental plates removed. (default: None)
   -t THRESHOLD, --Threshold THRESHOLD
@@ -499,12 +509,12 @@ Required arguments:
 
 ```
 
-#### S_Scores.py <a name="S_Scores"></a>
+#### s_scores <a name="S_Scores"></a>
 
 Computes the S-scores from the normalised dataset. 
 
 ```
-usage: S_Scores.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
+usage: s_scores [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 
 Computes the S-scores from the normalised dataset.
 
@@ -513,12 +523,12 @@ optional arguments:
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The normalised csv file from Check_Normalisation.py (default: None)
+                        The normalised csv file from check_normalisation (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file of the dataset as S-scores (default: None)
 ```
 
-#### Add_Gene_Names.py <a name="Add_Gene_Names"></a>
+#### add_gene_names <a name="Add_Gene_Names"></a>
 
 Add the gene names from the plate info files to make the final dataset. 
 
@@ -538,33 +548,33 @@ Plate info files should be formatted as such:
 | 1        | 2 |  PA2543   |
 
 ```
-usage: Add_Gene_Names.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-p PATH]
+usage: add_gene_names [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-p PATH]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The CSV output of S_Scores.py (default: None)
+                        The CSV output of s_scores (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         A CSV file of the final dataset. (default: None)
   -p PATH, --PATH PATH  
                         The path to the folder containing the plate info files. (default: None)
 ```
 
-#### Cosine_Similarity.py <a name="Cosine_Similarity"></a>
+#### cosine_similarity <a name="Cosine_Similarity"></a>
 
 Calculates the cosine similarity scores for the phenotypic profiles of genes from the same operon and genes from different operons. Produces a density plot of the cosine similarity scores for genes of the same and different operons. Produces an ROC curve testing models ability at different threshold. 
 
 ```
-usage: Cosine_Similarity.py [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-or OUTPUT_ROC_CURVE] [-od OUTPUT_DENSITY_PLOT] [-clus CLUSTER_FILE]
+usage: cosine_similarity [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-or OUTPUT_ROC_CURVE] [-od OUTPUT_DENSITY_PLOT] [-clus CLUSTER_FILE]
 
 optional arguments:
   -h, --help            show this help message and exit
 
 Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The dataset with gene names added. Output from Add_gene_names.py (default: None)
+                        The dataset with gene names added. Output from add_gene_names (default: None)
   -o OUTPUTFILE, --OutputFile OUTPUTFILE
                         List of genes compared and the cosine similarity score as well as if they belong to the same operon (default: None)
   -or OUTPUT_ROC_CURVE, --Output_ROC_curve OUTPUT_ROC_CURVE
@@ -575,7 +585,7 @@ Required arguments:
                         A CSV file containing the operon clusters for each gene within the bacterium of interest, where columns = (Cluster,Gene). (default: None)
 ```
 
-#### ChemGAPP_Small.py <a name="ChemGAPP_Small"></a>
+#### chemgapp_small <a name="ChemGAPP_Small"></a>
 
 ChemGAPP Small is an extension within ChemGAPP for the analysis of small scale chemical genomic screens. ChemGAPP Small produces three types of plots, a heatmap, bar plots and swarm plots. For the bar plot and heatmap, ChemGAPP Small compares the mean colony size of within plate replicates to the mean colony size of the within plate wildtype replicates, producing a fitness ratio. The bar plots are then optionally grouped by strain or by condition. The heatmap displays all conditions and strains. For the swarm plots each mutant colony size is divided by the mean colony size of the wildtype, to produce the fitness ratio. A one-way ANOVA and Tukey-HSD analysis determines the significance in difference between each mutant fitness ratio distribution and the wildtype fitness ratio distribution.
 
@@ -588,7 +598,7 @@ Where concentrations have decimals, use a comma instead of a period:
 E.g. `AMPICILLIN-0,5mM-6_B.JPG.iris`
 
 ```
-usage: ChemGAPP_Small.py [-h] [-p PATH] [-o OUTPUTFILE_PREFIX] [-pf PLATEINFOPATH] [-m MAX_COLONY_SIZE] [-wt WILDTYPE] [-it IRIS_TYPE] [-col_plot COLOURPALETTE] [-col_heat COLOURHEATMAP] [-wd WIDTH] [-ht HEIGHT] [-r ROTATION] [-cs CIRCLESIZE] [-g GROUP] [-pt PLOTTYPE]
+usage: chemgapp_small [-h] [-p PATH] [-o OUTPUTFILE_PREFIX] [-pf PLATEINFOPATH] [-m MAX_COLONY_SIZE] [-wt WILDTYPE] [-it IRIS_TYPE] [-col_plot COLOURPALETTE] [-col_heat COLOURHEATMAP] [-wd WIDTH] [-ht HEIGHT] [-r ROTATION] [-cs CIRCLESIZE] [-g GROUP] [-pt PLOTTYPE]
                          [-rm REMOVE_STRAIN] [-ymax Y_MAX] [-ymin Y_MIN]
 
 Analyses small scale chemical genomic screen data
@@ -631,9 +641,9 @@ optional arguments:
 
 ```     
 
-#### GI_Dataset.py <a name="GI_Dataset"></a>
+#### gi_dataset <a name="GI_Dataset"></a>
 
-GI_Dataset.py calculates the fitness ratio of two single mutant strains and a double knockout in comparison to the wildtype. It also calculates the expected double knockout fitness ratio for comparison to the observed fitness ratio. This outputs a Colony_Size.csv file and Interaction_Score.csv file for each secondary gene within the pair.
+gi_dataset calculates the fitness ratio of two single mutant strains and a double knockout in comparison to the wildtype. It also calculates the expected double knockout fitness ratio for comparison to the observed fitness ratio. This outputs a Colony_Size.csv file and Interaction_Score.csv file for each secondary gene within the pair.
 
 Ensure IRIS file names are in the format: `SecondaryGeneName_replicate.JPG.iris`
 
@@ -641,7 +651,7 @@ E.g. `MexB_A.JPG.iris`
 
 ```
 
-usage: GI_Dataset.py [-h] [-i INPUTFILE] [-p PATH] [-n NAMEINFOFILE]
+usage: gi_dataset [-h] [-i INPUTFILE] [-p PATH] [-n NAMEINFOFILE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -653,13 +663,13 @@ optional arguments:
 
 ```
 
-#### GI_Barplot.py <a name="GI_Barplot"></a>
+#### gi_barplot <a name="GI_Barplot"></a>
 
 GI_Barplot produces a grouped bar plot for all Interaction_score.csv files within the given directory.  
 
 ```
 
-usage: GI_Barplot.py [-h] [-p PATH] [-o OUTPUTFILE] [-g PRIMARYGENE]
+usage: gi_barplot [-h] [-p PATH] [-o OUTPUTFILE] [-g PRIMARYGENE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -743,7 +753,7 @@ E.g:
 
 ### ChemGAPP Small
 
-#### Step_1_ChemGAPP_Small.py <a name="Step_1_ChemGAPP_Small"></a>
+#### Step_1_chemgapp_small <a name="Step_1_ChemGAPP_Small"></a>
 
 1- First upload all iris files you wish to include.
 Ensure IRIS file names are in the format: `CONDITION-concentration-platenumber_replicate.JPG.iris`
