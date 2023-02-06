@@ -387,7 +387,7 @@ Required arguments:
 Produces a bar plot showing the counts of conditions with a certain number of plates lost at different thresholds of normality (z-score) and Mann-Whitney p-value.
 
 ```
-usage: Bar_Plot_Plates.py [-h] [-i INPUTFILE] [-o OUTPUTPLOT]
+usage: bar_plot_plates [-h] [-i INPUTFILE] [-o OUTPUTPLOT]
 
 optional arguments:
   -h, --help            show this help message and exit
