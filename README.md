@@ -68,14 +68,16 @@ pip3 install -r requirements.txt
     - First download the APP files
     - Ensure you have Python 3. This can be easily downloaded by installing Anaconda-Naviagator (available here: https://www.anaconda.com/products/distribution)
   - For Mac:
-    - Open terminal to navigate into the `ChemGAPP_APPs` directory and follow the below instructions.
+    - Follow the below instructions.
   - For Windows:
-    - Within Anaconda-Navigator click on the `Environments` tab, then for `base (root)` click the green play button and select `Open Terminal`. Then navigate into the `ChemGAPP_APPs` directory and follow the below instructions.
+    - Within Anaconda-Navigator click on the `Environments` tab, then for `base (root)` click the green play button and select `Open Terminal`. Then follow the below instructions.
 
 
-  - For ChemGAPP Big, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Big` directory and launch the application, using the following command in terminal:
+  - For ChemGAPP Big, you need to clone the repository, navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Big` directory and launch the application. These steps can be performed using the following commands in terminal:
 
 ```
+git clone https://github.com/HannahMDoherty/ChemGAPP
+cd ChemGAPP/ChemGAPP_Apps/ChemGAPP_Big
 pip install -r requirements.txt
 streamlit run ChemGAPP_Big.py
 ```
@@ -85,11 +87,13 @@ The commmand provides a link to the following front web application:
 <img src="https://github.com/HannahMDoherty/ChemGAPP/blob/main/ChemGAPP_APP.png" width="500" />
 </p>
 
-  - For ChemGAPP_Small, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Small` directory and launch the application, using the following command in terminal:
+  - For ChemGAPP_Small, you need to clone the repository, navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_Small` directory and launch the application. These steps can be performed using the following commands in terminal:
 
 ```
+git clone https://github.com/HannahMDoherty/ChemGAPP
+cd ChemGAPP/ChemGAPP_Apps/ChemGAPP_Small
 pip install -r requirements.txt
-streamlit run chemgapp_small
+streamlit run ChemGAPP_small.py
 ```
 
 The commmand provides a link to the following front web application:
@@ -97,9 +101,11 @@ The commmand provides a link to the following front web application:
 <img src="https://github.com/HannahMDoherty/ChemGAPP/blob/main/ChemGAPP_Small.png" width="500" />
 </p>
 
-  - For ChemGAPP_GI, you need to navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_GI` directory and launch the application, using the following command in terminal:
+  - For ChemGAPP_GI, you need to clone the repository, navigate into the `ChemGAPP_APPs` directory and then the `ChemGAPP_GI` directory and launch the application. These steps can be performed using the following commands in terminal:
 
 ```
+git clone https://github.com/HannahMDoherty/ChemGAPP
+cd ChemGAPP/ChemGAPP_Apps/ChemGAPP_GI
 pip install -r requirements.txt
 streamlit run ChemGAPP_GI.py
 ```
