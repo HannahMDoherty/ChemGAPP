@@ -37,7 +37,7 @@ def get_options():
     return parser.parse_args()
 
 
-def ChemGAPP_Small():  
+def main():  
     options = get_options()
     PATH = options.PATH
     outputfile = options.outputfile_prefix
@@ -311,7 +311,7 @@ def ChemGAPP_Small():
                 fig.set_size_inches(width1, height1)
                 fig.set_dpi(1000)
                 sns.despine()
-                plt.savefig(outputfile1+"_"+c.replace(",",".")+"_"+IRIS+"_Bar_Plot.pdf", bbox_inches='tight')
+                plt.savefig(outputfile+"_"+c.replace(",",".")+"_"+IRIS+"_Bar_Plot.pdf", bbox_inches='tight')
                 plt.clf()
         # if swarmplot selected produces swarmplots instead. Here the data is scored differently. 
         if plottype == "swarmplot":
@@ -395,7 +395,7 @@ def ChemGAPP_Small():
                 sns.despine()
                 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
                               fancybox=True, shadow=False, ncol=1)
-                plt.savefig(outputfile1+"_"+c+"_"+IRIS+"_Swarm_Plot.pdf", bbox_inches='tight')
+                plt.savefig(outputfile+"_"+c+"_"+IRIS+"_Swarm_Plot.pdf", bbox_inches='tight')
                 plt.clf()
     
     #here groups by strain and not condition.
@@ -425,7 +425,7 @@ def ChemGAPP_Small():
                 fig.set_size_inches(width1, height1)
                 fig.set_dpi(1000)
                 sns.despine()
-                plt.savefig(outputfile1+"_"+c+"_"+IRIS+"_Bar_Plot.pdf", bbox_inches='tight')
+                plt.savefig(outputfile+"_"+c+"_"+IRIS+"_Bar_Plot.pdf", bbox_inches='tight')
                 plt.clf()
         if plottype == "swarmplot":
             #as above with condition grouped swarmplots, 
@@ -528,7 +528,7 @@ def ChemGAPP_Small():
                 sns.despine()
                 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
                               fancybox=True, shadow=False, ncol=1)
-                plt.savefig(outputfile1+"_"+c+"_"+IRIS+"_Swarm_Plot.pdf", bbox_inches='tight')
+                plt.savefig(outputfile+"_"+c+"_"+IRIS+"_Swarm_Plot.pdf", bbox_inches='tight')
                 plt.clf()
     #produces heatmap based on the same dataset used for the barplots
     # transposes data such that rows are conditions
@@ -546,7 +546,7 @@ def ChemGAPP_Small():
     fig, ax = plt.subplots()
     ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": 4},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
     fig.set_size_inches(width1, height1)
-    plt.savefig(outputfile1+"_"+IRIS+"_Heatmap.pdf", bbox_inches='tight')
+    plt.savefig(outputfile+"_"+IRIS+"_Heatmap.pdf", bbox_inches='tight')
     plt.clf()
     return df3
 

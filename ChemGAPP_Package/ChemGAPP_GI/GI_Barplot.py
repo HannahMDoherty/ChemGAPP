@@ -21,7 +21,7 @@ def get_options():
     return parser.parse_args()
     
 
-def GI_BarPlot():
+def main():
     options = get_options()
     outputfile = options.OutputFile
     Path = options.PATH

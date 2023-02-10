@@ -15,7 +15,7 @@ def get_options():
     parser.add_argument("-n", "--nameinfofiles", help="Path to plate information files. Plate info files should be txt files, with the columns: Row, Column, Strain, Replicate, Order, Set.")
     return parser.parse_args()
 
-def GI_dataset():    
+def main():    
     options = get_options()
     indir = options.inputfiles
     PATH = options.PATH
