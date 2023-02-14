@@ -218,6 +218,18 @@ def new_iris_changed():
                 del st.session_state["conds"]
                 del st.session_state["fnames"]
 
+if "comp_type" not in st.session_state:
+        st.session_state.comp_type = []
+def new_comp_changed():
+        if st.session_state.new_comp_type:
+            st.session_state.comp_type = st.session_state.new_comp_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
 if "plot_type" not in st.session_state:
         st.session_state.plot_type = []
 def new_plot_changed():
@@ -363,6 +375,18 @@ def new_WT_changed():
                 del st.session_state["conds"]
                 del st.session_state["fnames"]
 
+if "vscond_type" not in st.session_state:
+        st.session_state.vscond_type = []
+def new_vscond_changed():
+        if st.session_state.new_vscond_type:
+            st.session_state.vscond_type = st.session_state.new_vscond_type
+            if 'figures' not in st.session_state:
+                pass
+            else:
+                del st.session_state["figures"]
+                del st.session_state["conds"]
+                del st.session_state["fnames"]
+
 if "rote_type" not in st.session_state:
         st.session_state.rote_type = []
 def new_rote_changed():
@@ -500,7 +524,13 @@ def new_max_changed():
 uploaded_files = st.sidebar.file_uploader("Upload multiple IRIS files", accept_multiple_files=True)
 plate_info_files = st.sidebar.file_uploader("Upload multiple plate information files", accept_multiple_files=True)
 outputfile1 = st.sidebar.text_input("Enter Path and Prefix for Output Files:", on_change=new_out_changed, key="new_out_type")
-wildtype1 = st.sidebar.text_input("Name of the Wildtype Strain:", on_change=new_WT_changed, key="new_WT_type")
+comp = st.sidebar.radio(
+    "Would you like to compare mutants to the wildtype within the same condition, or compare mutants to themselves within a control condition?",
+    ("Wildtype","Control Condition"), on_change=new_comp_changed, key="new_comp_type")
+if comp == "Wildtype":
+    wildtype1 = st.sidebar.text_input("Name of the wildtype Strain:", on_change=new_WT_changed, key="new_WT_type")
+if comp == "Control Condition":
+    vscond = st.sidebar.text_input("Name of the control condition:", on_change=new_vscond_changed, key="new_vscond_type")
 iris_type = st.sidebar.radio(
     "Select what the IRIS morphology to test:",
     ('size', 'circularity','opacity'), on_change=new_iris_changed, key="new_iris_type")
@@ -799,571 +829,1125 @@ if complete:
             df_with_strains = df_with_strains[df_with_strains['Gene'] != stra]
     df_with_strains = df_with_strains.set_index(['Gene'])
     df_with_strains.to_csv(outputfile1+"_Final_dataset.csv")
-    
-    # For the bar plots:
-    # averages the scores of rows with the same gene name.
-    group = df_with_strains.groupby(level=0).mean()
-    group2 = group.copy(deep=False)
-    df3 = pd.DataFrame(index=group.index)
-    # iterates through each condition
-    for column in group:
-        df1 = group[column]
-        df1 = pd.DataFrame(df1)
-        ar1 = np.array(df1)
-        ar2 = np.array(df1)
-        wt_mean = float(df1.loc[wildtype1])
-        # divides each averaged colony size by the mean wildtype colonysize for that condition
-        for ind, j in zip(df1.index,range(len(ar1))):
-            ar2[j] = (float(ar1[j])/wt_mean)
-        #adds scored column to new dataframe
-        df3 = np.concatenate((df3,ar2), axis=1)    
-    df3 = pd.DataFrame(df3, index=group.index, columns=group.columns)
-    df3.index.name = None
-    # drops the WT row from the scored dataset.
-    df3 = df3.drop(wildtype1,axis=0)
-    my_expandera = st.expander(label="Scored Dataset", expanded=False)
-    my_expandera.write(df3, header=[0,1,2])
-    df3.to_csv(outputfile1+"_Scored_Dataset.csv")
-    if "scored_dataset" not in st.session_state:
-        st.session_state.scored_dataset = df3
-    elif "scored_dataset" in st.session_state:
-        st.session_state.scored_dataset = df3
-    elwarn = st.warning("Preparing plots for download, do not click 'Download' until ready.")
-    conditions = {x[0] for x in df3.columns}
-    clen = len(conditions)
-    slen = len(df3)
-    
-    #preps lists for the appending various attributes such that they can be reloaded if a plot is downloaded.
     figs = []
     imgs = []
     fns = []
     cs = []
+    if comp == "Wildtype":
+        # For the bar plots:
+        # averages the scores of rows with the same gene name.
+        group = df_with_strains.groupby(level=0).mean()
+        group2 = group.copy(deep=False)
+        df3 = pd.DataFrame(index=group.index)
+        # iterates through each condition
+        for column in group:
+            df1 = group[column]
+            df1 = pd.DataFrame(df1)
+            ar1 = np.array(df1)
+            ar2 = np.array(df1)
+            wt_mean = float(df1.loc[wildtype1])
+            # divides each averaged colony size by the mean wildtype colonysize for that condition
+            for ind, j in zip(df1.index,range(len(ar1))):
+                ar2[j] = (float(ar1[j])/wt_mean)
+            #adds scored column to new dataframe
+            df3 = np.concatenate((df3,ar2), axis=1)    
+        df3 = pd.DataFrame(df3, index=group.index, columns=group.columns)
+        df3.index.name = None
+        # drops the WT row from the scored dataset.
+        df3 = df3.drop(wildtype1,axis=0)
+        my_expandera = st.expander(label="Scored Dataset", expanded=False)
+        my_expandera.write(df3, header=[0,1,2])
+        df3.to_csv(outputfile1+"_Scored_Dataset.csv")
+        if "scored_dataset" not in st.session_state:
+            st.session_state.scored_dataset = df3
+        elif "scored_dataset" in st.session_state:
+            st.session_state.scored_dataset = df3
+        elwarn = st.warning("Preparing plots for download, do not click 'Download' until ready.")
+        conditions = {x[0] for x in df3.columns}
+        clen = len(conditions)
+        slen = len(df3)
 
-    #produces heatmap based on the same dataset used for the barplots
-    # transposes data such that rows are conditions
-    b = df3.T
-    # averages replicate scores
-    c = b.groupby(level=0).mean()
-    #transposes back for plotting of the heatmap
-    x = c.T
-    for i in range(len(x.columns)):
-        x = x.rename(columns={x.columns[i]: x.columns[i].replace(",",".")})
-    c = x.T
-    sns.set(style="white")
-    sns.set_context("paper")
-    fig, ax = plt.subplots()
-    fig.set_size_inches(heat_width, heat_height)
-    colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
-    if heatsize == 0:
-        ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
-    else:
-        ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
-    myexp = st.expander(label="Heatmap:", expanded=False)
-    col1a,col1b,col1c = myexp.columns((1,4,1))
-    col1b.pyplot(fig)
-    figs.append(fig)
-    c="_"
-    cs.append(c)
-    img = io.BytesIO()
-    fn =("ChemGAPP_Heatmap.pdf")
-    temp = os.path.join(new_dir,fn)
-    #writes a temporary file into pickle of the figure such that it can be reloaded later
-    with open(temp,'wb') as fid:
-        pickle.dump(fig, fid)
-    fns.append(fn)
-    plt.savefig(img, format='pdf', bbox_inches='tight')
-    myexp.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-    # if selected to group by condition, and bar plot then produces bar plot for each condition. 
-    st.write(bar_swarm+"s")
-    if plot_type == 'Condition':
-        if bar_swarm == 'Bar Plot':
-            for c,i in zip(sorted(conditions),range(len(conditions))):
-                df1 = df3.xs((c), axis =1, drop_level=False)
-                df2 = df1.melt(ignore_index=False)
-                df2= df2.reset_index()
-                df2.columns = ["Strain","Condition","Replicate","Score"]
-                sns.set(style="white")
-                sns.set_context("paper")
-                fig, ax = plt.subplots()
-                ax = sns.barplot(x="Strain", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
-                ax = sns.swarmplot(x="Strain", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
-                ax.set(xlabel= "",ylabel='Fitness Ratio')
-                if sety == "Yes":
-                    ax.set_ylim(ylow,yhigh)
-                fig.set_size_inches(width1, height1)
-                fig.set_dpi(1000)
-                plt.title(c.replace(",","."))
-                plt.xticks(rotation=rote)
-                sns.despine()
-                if width1 >= 10:
-                    myexpand = st.expander(label=c, expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img =(io.BytesIO())
-                    
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but3 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                if width1 < 10:
-                    a= i+1
-                    if (a % 2) != 0:
-                        cola, colb = st.columns((1,1))
-                        myexpand = cola.expander(label=c.replace(",","."), expanded=False)
-                        myexpand.pyplot(fig)
-                        figs.append(fig)
-                        cs.append(c)
-                        img = (io.BytesIO())
+        #preps lists for the appending various attributes such that they can be reloaded if a plot is downloaded.
 
-                        plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                        temp = os.path.join(new_dir,fn)
-                        with open(temp,'wb') as fid:
-                            pickle.dump(fig, fid)
-                        fns.append(fn)
-                        but1 = myexpand.download_button(
+        #produces heatmap based on the same dataset used for the barplots
+        # transposes data such that rows are conditions
+        b = df3.T
+        # averages replicate scores
+        c = b.groupby(level=0).mean()
+        #transposes back for plotting of the heatmap
+        x = c.T
+        for i in range(len(x.columns)):
+            x = x.rename(columns={x.columns[i]: x.columns[i].replace(",",".")})
+        c = x.T
+        sns.set(style="white")
+        sns.set_context("paper")
+        fig, ax = plt.subplots()
+        fig.set_size_inches(heat_width, heat_height)
+        colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
+        if heatsize == 0:
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+        else:
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+        myexp = st.expander(label="Heatmap:", expanded=False)
+        col1a,col1b,col1c = myexp.columns((1,4,1))
+        col1b.pyplot(fig)
+        figs.append(fig)
+        c="_"
+        cs.append(c)
+        img = io.BytesIO()
+        fn =("ChemGAPP_Heatmap.pdf")
+        temp = os.path.join(new_dir,fn)
+        #writes a temporary file into pickle of the figure such that it can be reloaded later
+        with open(temp,'wb') as fid:
+            pickle.dump(fig, fid)
+        fns.append(fn)
+        plt.savefig(img, format='pdf', bbox_inches='tight')
+        myexp.download_button(
                              label="Download image",
                              data=img,
                              file_name=fn,
                              mime="image/pdf"
                           )
-                    else:
-                        myexpand = colb.expander(label=c.replace(",","."), expanded=False)
+        # if selected to group by condition, and bar plot then produces bar plot for each condition. 
+        st.write(bar_swarm+"s")
+        if plot_type == 'Condition':
+            if bar_swarm == 'Bar Plot':
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = df3.xs((c), axis =1, drop_level=False)
+                    df2 = df1.melt(ignore_index=False)
+                    df2= df2.reset_index()
+                    df2.columns = ["Strain","Condition","Replicate","Score"]
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.barplot(x="Strain", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
+                    ax = sns.swarmplot(x="Strain", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
+                    ax.set(xlabel= "",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    fig.set_size_inches(width1, height1)
+                    fig.set_dpi(1000)
+                    plt.title(c.replace(",","."))
+                    plt.xticks(rotation=rote)
+                    sns.despine()
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
                         myexpand.pyplot(fig)
                         figs.append(fig)
                         cs.append(c)
-                        img = (io.BytesIO())
+                        img =(io.BytesIO())
 
                         plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                         temp = os.path.join(new_dir,fn)
                         with open(temp,'wb') as fid:
                             pickle.dump(fig, fid)
                         fns.append(fn)
-                        but2 = myexpand.download_button(
+                        but3 = myexpand.download_button(
                              label="Download image",
                              data=img,
                              file_name=fn,
                              mime="image/pdf"
                           )
-        # if swarmplot selected produces swarmplots instead. Here the data is scored differently.          
-        if bar_swarm == 'Swarm Plot':
-            df_swarm1 = df_with_strains.reset_index()
-            #makes df including just the wildtype values
-            df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
-            # df_swarm3 = df_swarm1[df_swarm1['Gene'] != WT]
-            # adds "0_" to WT column name such that it is always sorted first 
-            # when sorting alphabetically, necessary for the ANOVA tests.
-            df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
-            df_swarm3 = df_swarm1.sort_values("Gene") 
-            # calculates the wildtype colony size mean for each condition plate.
-            wt_mean = np.array(df_swarm2.mean())
-            df_swarm3 = df_swarm3.set_index("Gene")
-            df_swarm4 = pd.DataFrame(index=df_swarm3.index)
-            # iterates through each condition plate and associated WT mean
-            for column,mean in zip(df_swarm3,wt_mean):
-                df1 = df_swarm3[column]
-                df1 = pd.DataFrame(df1)
-                ar1 = np.array(df1)
-                ar2 = np.array(df1)
-                for ind, j in zip(df1.index,range(len(ar1))):
-                    #divides each individual colony size by the WT_mean, including for the WT values.
-                    ar2[j] = (float(ar1[j])/mean)
-                df_swarm4 = np.concatenate((df_swarm4,ar2), axis=1)    
-            df_swarm4 = pd.DataFrame(df_swarm4, index=df_swarm3.index, columns=df_swarm3.columns)
-            df_swarm4.index.name = None
-            conditions = {x[0] for x in df_swarm4.columns}
-            #iterates through conditions and makes sub-dataset including all replicate plates for same condition.
-            for c,i in zip(sorted(conditions),range(len(conditions))):
-                df1 = df_swarm4.xs((c), axis =1, drop_level=False)
-                #metls dataset so all scores are in sigular column
-                df2 = df1.melt(ignore_index=False)
-                df2= df2.reset_index()
-                df2.columns = ["Strain","Condition","Replicate","Score"]
-                # performs anova and tukey-hsd but only takes the values for comarison to the WT for each gene,
-                # such that significance can be plotted on swarm plots
-                res = stat()
-                res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
-                stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
-                pairs = list(zip(stats1.group2, stats1.group2))
-                pvalues = list(stats1['p-value'])
-                df2 = df2[df2.Strain != ("0_"+wildtype1)]
-                subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
-                plotting_parameters = {
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c.replace(",","."), expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img = (io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but1 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+                        else:
+                            myexpand = colb.expander(label=c.replace(",","."), expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img = (io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but2 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+            # if swarmplot selected produces swarmplots instead. Here the data is scored differently.          
+            if bar_swarm == 'Swarm Plot':
+                df_swarm1 = df_with_strains.reset_index()
+                #makes df including just the wildtype values
+                df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
+                # df_swarm3 = df_swarm1[df_swarm1['Gene'] != WT]
+                # adds "0_" to WT column name such that it is always sorted first 
+                # when sorting alphabetically, necessary for the ANOVA tests.
+                df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
+                df_swarm3 = df_swarm1.sort_values("Gene") 
+                # calculates the wildtype colony size mean for each condition plate.
+                wt_mean = np.array(df_swarm2.mean())
+                df_swarm3 = df_swarm3.set_index("Gene")
+                df_swarm4 = pd.DataFrame(index=df_swarm3.index)
+                # iterates through each condition plate and associated WT mean
+                for column,mean in zip(df_swarm3,wt_mean):
+                    df1 = df_swarm3[column]
+                    df1 = pd.DataFrame(df1)
+                    ar1 = np.array(df1)
+                    ar2 = np.array(df1)
+                    for ind, j in zip(df1.index,range(len(ar1))):
+                        #divides each individual colony size by the WT_mean, including for the WT values.
+                        ar2[j] = (float(ar1[j])/mean)
+                    df_swarm4 = np.concatenate((df_swarm4,ar2), axis=1)    
+                df_swarm4 = pd.DataFrame(df_swarm4, index=df_swarm3.index, columns=df_swarm3.columns)
+                df_swarm4.index.name = None
+                conditions = {x[0] for x in df_swarm4.columns}
+                #iterates through conditions and makes sub-dataset including all replicate plates for same condition.
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = df_swarm4.xs((c), axis =1, drop_level=False)
+                    #metls dataset so all scores are in sigular column
+                    df2 = df1.melt(ignore_index=False)
+                    df2= df2.reset_index()
+                    df2.columns = ["Strain","Condition","Replicate","Score"]
+                    # performs anova and tukey-hsd but only takes the values for comarison to the WT for each gene,
+                    # such that significance can be plotted on swarm plots
+                    res = stat()
+                    res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
+                    stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
+                    pairs = list(zip(stats1.group2, stats1.group2))
+                    pvalues = list(stats1['p-value'])
+                    df2 = df2[df2.Strain != ("0_"+wildtype1)]
+                    subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
+                    plotting_parameters = {
+                        'data':    df2,
+                        'x':       'Strain',
+                        'y':       'Score'}
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax1 = plt.subplots()
+                    ax1 = sns.swarmplot(x="Strain", y="Score",hue="Strain", data=df2, alpha=1,size=circ_size,palette=st.session_state.pal_type, order=order_list)
+                    # adds mean bars
+                    ax = sns.boxplot(showmeans=True,
+                            meanline=True,
+                            meanprops={'color': 'k', 'ls': '-', 'lw': 1},
+                            medianprops={'visible': False},
+                            whiskerprops={'visible': False},
+                            zorder=10,
+                            x="Strain", y="Score",data=df2,
+                            showfliers=False,
+                            showbox=False,
+                            showcaps=False,
+                            ax=ax1,order=order_list)
+                    #adds anova asterisk type annotations for sigificance. 
+                    annotator = Annotator(ax, pairs, **plotting_parameters,order=order_list)
+                    annotator.set_pvalues(pvalues)
+                    annotator.configure(line_width = 0)
+                    annotator.annotate()
+                    for patch in ax.artists:
+                        r, g, b, a = patch.get_facecolor()
+                        patch.set_facecolor((r, g, b, 0))    
+                    ax.set(xlabel= "Strain",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax1.set_ylim(ylow,yhigh)
+                    plt.title(c)
+                    if xlabes == 'No':
+                        plt.xticks([])
+                    if  xlabes == 'Yes':
+                        plt.xticks(rotation=rote)
+                    fig.set_size_inches(width1, height1)
+
+                    sns.despine()
+                    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                                  fancybox=True, shadow=False, ncol=1)
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img =(io.BytesIO())
+
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but3 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but4 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but5 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+        #here groups by strain and not condition.
+        if plot_type == 'Strain':
+            if bar_swarm == 'Bar Plot':
+                #transposes dataset such that it can be grouped by strains.
+                b = df3.T
+                conditions = {x for x in b.columns}
+                #splits and iterates by strain.
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = b.xs((c), axis=1, drop_level=False)
+                    df1 = df1.T
+                    #melts dataset such that all scores in one column with key being for the conditions
+                    df2 = df1.melt(ignore_index=False)
+                    df2.columns = ["Condition","Replicate","Score"]
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.barplot(x="Condition", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
+                    ax = sns.swarmplot(x="Condition", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
+                    ax.set(xlabel= "",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    plt.xticks(rotation=rote)
+                    plt.title(c)
+                    fig.set_size_inches(width1, height1)
+
+                    sns.despine()
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img =(io.BytesIO())
+
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but3 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but6 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but7 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+
+            if bar_swarm == "Swarm Plot":
+                #as above with condition grouped swarmplots, 
+                # produces dataset with each individual colonzy size divided by WT mean for that condition. 
+                # then calulates anova and tukey-hsd and takes p values for WT vs each strain. 
+                df_swarm1 = df_with_strains.reset_index()
+                df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
+                df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
+                df_swarm3 = df_swarm1.sort_values("Gene") 
+                wt_mean = np.array(df_swarm2.mean())
+                df_swarm3 = df_swarm3.set_index("Gene")
+                df_swarm4 = pd.DataFrame(index=df_swarm3.index)
+                for column,mean in zip(df_swarm3,wt_mean):
+                    df1 = df_swarm3[column]
+                    df1 = pd.DataFrame(df1)
+                    ar1 = np.array(df1)
+                    ar2 = np.array(df1)
+                    for ind, j in zip(df1.index,range(len(ar1))):
+                        ar2[j] = (float(ar1[j])/mean)
+                    df_swarm4 = np.concatenate((df_swarm4,ar2), axis=1)    
+                df_swarm4 = pd.DataFrame(df_swarm4, index=df_swarm3.index, columns=df_swarm3.columns)
+                df_swarm4.index.name = None
+                conditions = {x[0] for x in df_swarm4.columns}
+                genes = {x for x in df_swarm4.index}
+                # produces zeros matrix that can be filled for [(gene1,gene1),condition,p-value], 
+                # need to compare pairs to themselves since plots sorted by strain then plot based on the conditions split by gene name
+                leng = len(genes)-1
+                anovas = np.zeros((leng, 3),dtype=object)
+                anovas.shape = (leng,3)
+                for c in sorted(conditions):
+                    df1 = df_swarm4.xs((c), axis =1, drop_level=False)
+                    df2 = df1.melt(ignore_index=False)
+                    df2 = df2.reset_index()
+                    df2.columns = ["Strain","Condition","Replicate","Score"]
+                    res = stat()
+                    res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
+                    #takes only those compared to the WT
+                    stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
+                    # makes list of the current condition same length as number of genes - 1. 
+                    # Allows for zipping to the pairs and p-values for the matrix.
+                    cond = ([c] * leng)
+                    pairs = list(zip(stats1.group2, stats1.group2))
+                    pvalues = list(stats1['p-value'])
+                    grouped = list(zip(pairs,cond,pvalues))
+                    print(grouped)
+                    grouped = np.array(grouped,dtype=object)
+                    anovas = np.append(anovas,grouped, axis=0)
+                print(anovas)
+                anovas = anovas[leng:len(anovas)]
+                df_swarm4 = df_swarm4[df_swarm4.index != ("0_"+wildtype1)]
+                #transposes dataset such that can be split by strain instead of condition.
+                b = df_swarm4.T
+                conditions = {x for x in b.columns}
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = b.xs((c), axis=1, drop_level=False)
+                    df1 = df1.T
+                    df2 = df1.melt(ignore_index=False)
+                    df2.columns = ["Condition","Replicate","Score"]
+                    #finds the annotation pair (condition,condition) 
+                    # and pvalue for the current strain for annotation of significance scores.
+                    m = [row for row in anovas if c == row[0][0]]
+                    pair1 = [(row[1],row[1]) for row in m]
+                    pvalue1 = [row[2] for row in m]
+                    print(pair1,pvalue1)
+                    df2 = df2[df2.Condition != wildtype1]
+                    subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
+                    plotting_parameters = {
                     'data':    df2,
-                    'x':       'Strain',
-                    'y':       'Score'}
-                sns.set(style="white")
-                sns.set_context("paper")
-                fig, ax1 = plt.subplots()
-                ax1 = sns.swarmplot(x="Strain", y="Score",hue="Strain", data=df2, alpha=1,size=circ_size,palette=st.session_state.pal_type, order=order_list)
-                # adds mean bars
-                ax = sns.boxplot(showmeans=True,
-                        meanline=True,
-                        meanprops={'color': 'k', 'ls': '-', 'lw': 1},
-                        medianprops={'visible': False},
-                        whiskerprops={'visible': False},
-                        zorder=10,
-                        x="Strain", y="Score",data=df2,
-                        showfliers=False,
-                        showbox=False,
-                        showcaps=False,
-                        ax=ax1,order=order_list)
-                #adds anova asterisk type annotations for sigificance. 
-                annotator = Annotator(ax, pairs, **plotting_parameters,order=order_list)
-                annotator.set_pvalues(pvalues)
-                annotator.configure(line_width = 0)
-                annotator.annotate()
-                for patch in ax.artists:
-                    r, g, b, a = patch.get_facecolor()
-                    patch.set_facecolor((r, g, b, 0))    
-                ax.set(xlabel= "Strain",ylabel='Fitness Ratio')
-                if sety == "Yes":
-                    ax1.set_ylim(ylow,yhigh)
-                plt.title(c)
-                if xlabes == 'No':
-                    plt.xticks([])
-                if  xlabes == 'Yes':
-                    plt.xticks(rotation=rote)
-                fig.set_size_inches(width1, height1)
-                
-                sns.despine()
-                plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-                              fancybox=True, shadow=False, ncol=1)
-                if width1 >= 10:
-                    myexpand = st.expander(label=c, expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img =(io.BytesIO())
-                    
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but3 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                if width1 < 10:
-                    a= i+1
-                    if (a % 2) != 0:
-                        cola, colb = st.columns((1,1))
-                        myexpand = cola.expander(label=c, expanded=False)
+                    'x':       'Condition',
+                    'y':       'Score',
+                    'palette': subcat_palette[1:]}
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.swarmplot(x="Condition", y="Score",hue="Condition", data=df2, alpha=1,size=circ_size,palette=st.session_state.pal_type, order=order_list)
+                    ax = sns.boxplot(showmeans=True,
+                            meanline=True,
+                            meanprops={'color': 'k', 'ls': '-', 'lw': 1},
+                            medianprops={'visible': False},
+                            whiskerprops={'visible': False},
+                            zorder=10,
+                            x="Condition", y="Score",data=df2,
+                            showfliers=False,
+                            showbox=False,
+                            showcaps=False,
+                            ax=ax,order=order_list)
+                    annotator = Annotator(ax, pair1, **plotting_parameters,order=order_list)
+                    annotator.set_pvalues(pvalue1)
+                    annotator.configure(line_width = 0)
+                    annotator.annotate()
+                    for patch in ax.artists:
+                        r, g, b, a = patch.get_facecolor()
+                        patch.set_facecolor((r, g, b, 0))    
+                    ax.set(xlabel= "Condition",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    plt.title(c)
+                    if xlabes == 'No':
+                        plt.xticks([])
+                    if  xlabes == 'Yes':
+                        plt.xticks(rotation=rote)
+                    fig.set_size_inches(width1, height1)
+
+                    sns.despine()
+                    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                                  fancybox=True, shadow=False, ncol=1)
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
                         myexpand.pyplot(fig)
                         figs.append(fig)
                         cs.append(c)
                         img =(io.BytesIO())
-                        
-                        
+
                         plt.savefig(img, format='pdf', bbox_inches='tight')
                         fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                         temp = os.path.join(new_dir,fn)
                         with open(temp,'wb') as fid:
                             pickle.dump(fig, fid)
                         fns.append(fn)
-                        but4 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                    else:
-                        myexpand = colb.expander(label=c, expanded=False)
+                        but8 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig) 
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but9 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but10 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+    if comp == "Control Condition":
+        df_grouped = df_with_strains.groupby(level=0).mean()
+        df_grouped["versus"] = np.mean(df_grouped[vscond],axis=1)
+        cols = df_grouped.columns
+        df_bar = pd.DataFrame(index=df_grouped.index)
+        for c in cols:     
+            df1 = pd.DataFrame(df_grouped.xs((c), axis=1, drop_level=True))
+            df2 = pd.DataFrame(df_grouped.xs(("versus"), axis=1, drop_level=True))
+            df1.columns = [f'{i}_{j}' for i,j in df1.columns]
+            df2 = df2.rename(columns={df2.columns[0]: df1.columns[0]})
+            df5 = pd.DataFrame(df1/df2, index = df_grouped.index)
+            df_bar = pd.concat([df_bar,df5],axis=1)
+
+        df_bar.columns = df_bar.columns.str.split('_', expand=True)    
+        for x in list(df_bar.xs((vscond), axis=1, drop_level=False).columns):
+            df_bar = df_bar.drop(x, axis=1)
+        df_bar = df_bar.drop("versus", axis=1)
+        my_expandera = st.expander(label="Scored Dataset", expanded=False)
+        my_expandera.write(df_bar, header=[0,1,2])
+        df_bar.to_csv(outputfile1+"_Scored_Dataset.csv")
+        if "scored_dataset" not in st.session_state:
+            st.session_state.scored_dataset = df_bar
+        elif "scored_dataset" in st.session_state:
+            st.session_state.scored_dataset = df_bar
+        
+        elwarn = st.warning("Preparing plots for download, do not click 'Download' until ready.")
+        b = df_bar.T
+        # averages replicate scores
+        c = b.groupby(level=0).mean()
+        #transposes back for plotting of the heatmap
+        x = c.T
+        for i in range(len(x.columns)):
+            x = x.rename(columns={x.columns[i]: x.columns[i]})
+        c = x.T   
+        sns.set(style="white")
+        sns.set_context("paper")
+        fig, ax = plt.subplots()
+        fig.set_size_inches(heat_width, heat_height)
+        colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
+        if heatsize == 0:
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+        else:
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+        myexp = st.expander(label="Heatmap:", expanded=False)
+        col1a,col1b,col1c = myexp.columns((1,4,1))
+        col1b.pyplot(fig)
+        figs.append(fig)
+        c="_"
+        cs.append(c)
+        img = io.BytesIO()
+        fn =("ChemGAPP_Heatmap.pdf")
+        temp = os.path.join(new_dir,fn)
+        #writes a temporary file into pickle of the figure such that it can be reloaded later
+        with open(temp,'wb') as fid:
+            pickle.dump(fig, fid)
+        fns.append(fn)
+        plt.savefig(img, format='pdf', bbox_inches='tight')
+        myexp.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+
+
+        cols = df_with_strains.columns
+        df_with_strains["versus"] = np.mean(df_with_strains[vscond],axis=1)
+        means = df_with_strains["versus"].groupby(level=0).mean()
+        df_swarm4 = pd.DataFrame(index=df_with_strains.index)
+        df_with_strains["means"] = means
+        for c in cols:     
+            df1 = pd.DataFrame(df_with_strains.xs((c), axis=1, drop_level=True))
+            df2 = pd.DataFrame(df_with_strains.xs(("means"), axis=1, drop_level=True))
+            df1.columns = [f'{i}_{j}' for i,j in df1.columns]
+            df2 = df2.rename(columns={df2.columns[0]: df1.columns[0]})
+            df5 = pd.DataFrame(df1/df2, index = df_with_strains.index)
+            df_swarm4 = pd.concat([df_swarm4,df5],axis=1)
+        df_swarm4.columns = df_swarm4.columns.str.split('_', expand=True)
+        df_swarm4.index.name = None
+        df_swarm4 = df_swarm4.rename(columns={vscond:("0_"+vscond)},level=0)
+        
+        st.write(bar_swarm+"s")
+        if plot_type == 'Condition':
+            if bar_swarm == 'Bar Plot':
+                conditions = {x[0] for x in df_bar.columns}
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = df_bar.xs((c), axis =1, drop_level=False)
+                    df2 = df1.melt(ignore_index=False)
+                    df2= df2.reset_index()
+                    df2.columns = ["Strain","Condition","Replicate","Score"]
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.barplot(x="Strain", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
+                    ax = sns.swarmplot(x="Strain", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
+                    ax.set(xlabel= "",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    fig.set_size_inches(width1, height1)
+                    fig.set_dpi(1000)
+                    plt.title(c.replace(",","."))
+                    plt.xticks(rotation=rote)
+                    sns.despine()
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
                         myexpand.pyplot(fig)
                         figs.append(fig)
                         cs.append(c)
                         img =(io.BytesIO())
-                        
-                        
+
                         plt.savefig(img, format='pdf', bbox_inches='tight')
                         fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                         temp = os.path.join(new_dir,fn)
                         with open(temp,'wb') as fid:
                             pickle.dump(fig, fid)
                         fns.append(fn)
-                        but5 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-    #here groups by strain and not condition.
-    if plot_type == 'Strain':
-        if bar_swarm == 'Bar Plot':
-            #transposes dataset such that it can be grouped by strains.
-            b = df3.T
-            conditions = {x for x in b.columns}
-            #splits and iterates by strain.
-            for c,i in zip(sorted(conditions),range(len(conditions))):
-                df1 = b.xs((c), axis=1, drop_level=False)
-                df1 = df1.T
-                #melts dataset such that all scores in one column with key being for the conditions
-                df2 = df1.melt(ignore_index=False)
-                df2.columns = ["Condition","Replicate","Score"]
-                sns.set(style="white")
-                sns.set_context("paper")
-                fig, ax = plt.subplots()
-                ax = sns.barplot(x="Condition", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
-                ax = sns.swarmplot(x="Condition", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
-                ax.set(xlabel= "",ylabel='Fitness Ratio')
-                if sety == "Yes":
-                    ax.set_ylim(ylow,yhigh)
-                plt.xticks(rotation=rote)
-                plt.title(c)
-                fig.set_size_inches(width1, height1)
-                
-                sns.despine()
-                if width1 >= 10:
-                    myexpand = st.expander(label=c, expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img =(io.BytesIO())
+                        but3 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c.replace(",","."), expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img = (io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but1 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+                        else:
+                            myexpand = colb.expander(label=c.replace(",","."), expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img = (io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but2 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
                     
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but3 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                if width1 < 10:
-                    a= i+1
-                    if (a % 2) != 0:
-                        cola, colb = st.columns((1,1))
-                        myexpand = cola.expander(label=c, expanded=False)
+            if bar_swarm == "Swarm Plot":
+                t_swarm = df_swarm4.T
+                t_swarm = t_swarm.sort_index()
+                conditions = {x[0] for x in df_swarm4.columns}
+                genes = {x for x in df_swarm4.index}
+                leng = len(conditions)-1
+                # produces zeros matrix that can be filled for [(gene1,gene1),condition,p-value], 
+                # need to compare pairs to themselves since plots sorted by strain then plot based on the conditions split by gene name
+                anovas = np.zeros((leng, 3),dtype=object)
+                anovas.shape = (leng,3)
+                for c in sorted(genes):
+                    df1 = t_swarm.xs((c), axis =1, drop_level=False)
+                    df2 = df1.melt(ignore_index=False)
+                    df2 = df2.reset_index()
+
+                    df2.columns = ["Condition","Replicate","Strain","Score"]
+                    res = stat()
+                    res.tukey_hsd(df=df2, res_var='Score', xfac_var='Condition', anova_model='Score ~ C(Condition)')
+                    #takes only those compared to the WT
+                    stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+vscond)]
+                    # makes list of the current condition same length as number of genes - 1. 
+                    # Allows for zipping to the pairs and p-values for the matrix.
+                    genes = ([c] * leng)
+                    pairs = list(zip(genes,genes))
+                    pvalues = list(stats1['p-value'])
+                    cond = list(stats1.group2)
+                    grouped = list(zip(pairs,cond,pvalues))
+                    grouped = np.array(grouped,dtype=object)
+                    anovas = np.append(anovas,grouped, axis=0)
+                anovas = anovas[leng:len(anovas)]
+                print(anovas)
+
+                for x in list(df_swarm4.xs(("0_"+vscond), axis=1, drop_level=False).columns):
+                    df_swarm4 = df_swarm4.drop(x, axis=1)
+                conditions = {x[0] for x in df_swarm4.columns}
+                #iterates through conditions and makes sub-dataset including all replicate plates for same condition.
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = df_swarm4.xs((c), axis =1, drop_level=False)
+                    #metls dataset so all scores are in sigular column
+                    df2 = df1.melt(ignore_index=False)
+                    df2= df2.reset_index()
+                    df2.columns = ["Strain","Condition","Replicate","Score"]
+                    print(c)
+                    m = [row for row in anovas if c == row[1]]
+                    pair1 = [(row[0][0],row[0][1]) for row in m]
+                    pvalue1 = [row[2] for row in m]
+                    subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
+                    plotting_parameters = {
+                                'data':    df2,
+                                'x':       'Strain',
+                                'y':       'Score',
+                                'palette': subcat_palette[1:]}
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.swarmplot(x="Strain", y="Score",hue="Strain", data=df2, alpha=1,palette=st.session_state.pal_type, order=order_list)
+                    ## adds mean bars
+                    ax = sns.boxplot(showmeans=True,
+                            meanline=True,
+                            meanprops={'color': 'k', 'ls': '-', 'lw': 1},
+                            medianprops={'visible': False},
+                            whiskerprops={'visible': False},
+                            zorder=10,
+                            x="Strain", y="Score",data=df2,
+                            showfliers=False,
+                            showbox=False,
+                            showcaps=False,order=order_list,
+                            ax=ax)
+                    #adds anova asterisk type annotations for sigificance. 
+                    annotator = Annotator(ax, pair1, **plotting_parameters)
+                    annotator.set_pvalues(pvalue1)
+                    annotator.configure(line_width = 0)
+                    annotator.annotate()
+                    for patch in ax.artists:
+                        r, g, b, a = patch.get_facecolor()
+                        patch.set_facecolor((r, g, b, 0))    
+                    ax.set(xlabel= "Strain",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    plt.title(c)
+                    if xlabes == 'No':
+                        plt.xticks([])
+                    if  xlabes == 'Yes':
+                        plt.xticks(rotation=rote)
+                    fig.set_size_inches(width1, height1)
+
+                    sns.despine()
+                    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                                  fancybox=True, shadow=False, ncol=1)
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
                         myexpand.pyplot(fig)
                         figs.append(fig)
                         cs.append(c)
                         img =(io.BytesIO())
-                        
-                        
+
                         plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                         temp = os.path.join(new_dir,fn)
                         with open(temp,'wb') as fid:
                             pickle.dump(fig, fid)
                         fns.append(fn)
-                        but6 = myexpand.download_button(
+                        but3 = myexpand.download_button(
                              label="Download image",
                              data=img,
                              file_name=fn,
                              mime="image/pdf"
                           )
-                    else:
-                        myexpand = colb.expander(label=c, expanded=False)
-                        myexpand.pyplot(fig)
-                        figs.append(fig)
-                        cs.append(c)
-                        img =(io.BytesIO())
-                        
-                        
-                        plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                        temp = os.path.join(new_dir,fn)
-                        with open(temp,'wb') as fid:
-                            pickle.dump(fig, fid)
-                        fns.append(fn)
-                        but7 = myexpand.download_button(
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but4 = myexpand.download_button(
                              label="Download image",
                              data=img,
                              file_name=fn,
                              mime="image/pdf"
                           )
-                
-        if bar_swarm == "Swarm Plot":
-            #as above with condition grouped swarmplots, 
-            # produces dataset with each individual colonzy size divided by WT mean for that condition. 
-            # then calulates anova and tukey-hsd and takes p values for WT vs each strain. 
-            df_swarm1 = df_with_strains.reset_index()
-            df_swarm2 = df_swarm1[df_swarm1['Gene'] == wildtype1]
-            df_swarm1['Gene'] = df_swarm1['Gene'].str.replace(wildtype1,("0_"+wildtype1))
-            df_swarm3 = df_swarm1.sort_values("Gene") 
-            wt_mean = np.array(df_swarm2.mean())
-            df_swarm3 = df_swarm3.set_index("Gene")
-            df_swarm4 = pd.DataFrame(index=df_swarm3.index)
-            for column,mean in zip(df_swarm3,wt_mean):
-                df1 = df_swarm3[column]
-                df1 = pd.DataFrame(df1)
-                ar1 = np.array(df1)
-                ar2 = np.array(df1)
-                for ind, j in zip(df1.index,range(len(ar1))):
-                    ar2[j] = (float(ar1[j])/mean)
-                df_swarm4 = np.concatenate((df_swarm4,ar2), axis=1)    
-            df_swarm4 = pd.DataFrame(df_swarm4, index=df_swarm3.index, columns=df_swarm3.columns)
-            df_swarm4.index.name = None
-            conditions = {x[0] for x in df_swarm4.columns}
-            genes = {x for x in df_swarm4.index}
-            # produces zeros matrix that can be filled for [(gene1,gene1),condition,p-value], 
-            # need to compare pairs to themselves since plots sorted by strain then plot based on the conditions split by gene name
-            leng = len(genes)-1
-            anovas = np.zeros((leng, 3),dtype=object)
-            anovas.shape = (leng,3)
-            for c in sorted(conditions):
-                df1 = df_swarm4.xs((c), axis =1, drop_level=False)
-                df2 = df1.melt(ignore_index=False)
-                df2 = df2.reset_index()
-                df2.columns = ["Strain","Condition","Replicate","Score"]
-                res = stat()
-                res.tukey_hsd(df=df2, res_var='Score', xfac_var='Strain', anova_model='Score ~ C(Strain)')
-                #takes only those compared to the WT
-                stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+wildtype1)]
-                # makes list of the current condition same length as number of genes - 1. 
-                # Allows for zipping to the pairs and p-values for the matrix.
-                cond = ([c] * leng)
-                pairs = list(zip(stats1.group2, stats1.group2))
-                pvalues = list(stats1['p-value'])
-                grouped = list(zip(pairs,cond,pvalues))
-                print(grouped)
-                grouped = np.array(grouped,dtype=object)
-                anovas = np.append(anovas,grouped, axis=0)
-            print(anovas)
-            anovas = anovas[leng:len(anovas)]
-            df_swarm4 = df_swarm4[df_swarm4.index != ("0_"+wildtype1)]
-            #transposes dataset such that can be split by strain instead of condition.
-            b = df_swarm4.T
-            conditions = {x for x in b.columns}
-            for c,i in zip(sorted(conditions),range(len(conditions))):
-                df1 = b.xs((c), axis=1, drop_level=False)
-                df1 = df1.T
-                df2 = df1.melt(ignore_index=False)
-                df2.columns = ["Condition","Replicate","Score"]
-                #finds the annotation pair (condition,condition) 
-                # and pvalue for the current strain for annotation of significance scores.
-                m = [row for row in anovas if c == row[0][0]]
-                pair1 = [(row[1],row[1]) for row in m]
-                pvalue1 = [row[2] for row in m]
-                print(pair1,pvalue1)
-                df2 = df2[df2.Condition != wildtype1]
-                subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
-                plotting_parameters = {
-                'data':    df2,
-                'x':       'Condition',
-                'y':       'Score',
-                'palette': subcat_palette[1:]}
-                sns.set(style="white")
-                sns.set_context("paper")
-                fig, ax = plt.subplots()
-                ax = sns.swarmplot(x="Condition", y="Score",hue="Condition", data=df2, alpha=1,size=circ_size,palette=st.session_state.pal_type, order=order_list)
-                ax = sns.boxplot(showmeans=True,
-                        meanline=True,
-                        meanprops={'color': 'k', 'ls': '-', 'lw': 1},
-                        medianprops={'visible': False},
-                        whiskerprops={'visible': False},
-                        zorder=10,
-                        x="Condition", y="Score",data=df2,
-                        showfliers=False,
-                        showbox=False,
-                        showcaps=False,
-                        ax=ax,order=order_list)
-                annotator = Annotator(ax, pair1, **plotting_parameters,order=order_list)
-                annotator.set_pvalues(pvalue1)
-                annotator.configure(line_width = 0)
-                annotator.annotate()
-                for patch in ax.artists:
-                    r, g, b, a = patch.get_facecolor()
-                    patch.set_facecolor((r, g, b, 0))    
-                ax.set(xlabel= "Condition",ylabel='Fitness Ratio')
-                if sety == "Yes":
-                    ax.set_ylim(ylow,yhigh)
-                plt.title(c)
-                if xlabes == 'No':
-                    plt.xticks([])
-                if  xlabes == 'Yes':
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but5 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    
+        if plot_type == 'Strain':
+            if bar_swarm == 'Bar Plot':
+                #transposes dataset such that it can be grouped by strains.
+                b = df_bar.T
+                # makes set of all strains. 
+                strain_list = {x for x in b.columns}
+                #splits and iterates by strain.
+                for c,i in zip(sorted(strain_list),range(len(strain_list))):
+                    df1 = b.xs((c), axis=1, drop_level=False)
+                    df1 = df1.T
+                    #melts dataset such that all scores in one column wit
+                    # h key being for the conditions
+                    df2 = df1.melt(ignore_index=False)
+                    df2.columns = ["Condition","Replicate","Score"]
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.barplot(x="Condition", y="Score",data=df2,capsize=.5,errwidth=0.8,palette=st.session_state.pal_type,edgecolor="0.2", order=order_list)
+                    ax = sns.swarmplot(x="Condition", y="Score",color="0", data=df2, alpha=1,size=4,order=order_list)
+                    ax.set(xlabel= "",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
                     plt.xticks(rotation=rote)
-                fig.set_size_inches(width1, height1)
-                
-                sns.despine()
-                plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-                              fancybox=True, shadow=False, ncol=1)
-                if width1 >= 10:
-                    myexpand = st.expander(label=c, expanded=False)
-                    myexpand.pyplot(fig)
-                    figs.append(fig)
-                    cs.append(c)
-                    img =(io.BytesIO())
-                    
-                    plt.savefig(img, format='pdf', bbox_inches='tight')
-                    fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                    temp = os.path.join(new_dir,fn)
-                    with open(temp,'wb') as fid:
-                        pickle.dump(fig, fid)
-                    fns.append(fn)
-                    but8 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                    
-                if width1 < 10:
-                    a= i+1
-                    if (a % 2) != 0:
-                        cola, colb = st.columns((1,1))
-                        myexpand = cola.expander(label=c, expanded=False)
-                        myexpand.pyplot(fig)
-                        figs.append(fig) 
-                        cs.append(c)
-                        img =(io.BytesIO())
-                        
-                        plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
-                        temp = os.path.join(new_dir,fn)
-                        with open(temp,'wb') as fid:
-                            pickle.dump(fig, fid)
-                        fns.append(fn)
-                        but9 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                        
-                    else:
-                        myexpand = colb.expander(label=c, expanded=False)
+                    plt.title(c)
+                    fig.set_size_inches(width1, height1)
+
+                    sns.despine()
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
                         myexpand.pyplot(fig)
                         figs.append(fig)
                         cs.append(c)
                         img =(io.BytesIO())
-                        
-                        
+
                         plt.savefig(img, format='pdf', bbox_inches='tight')
-                        fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
                         temp = os.path.join(new_dir,fn)
                         with open(temp,'wb') as fid:
                             pickle.dump(fig, fid)
                         fns.append(fn)
-                        but10 = myexpand.download_button(
-                         label="Download image",
-                         data=img,
-                         file_name=fn,
-                         mime="image/pdf"
-                      )
-                        
+                        but3 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but6 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but7 = myexpand.download_button(
+                                 label="Download image",
+                                 data=img,
+                                 file_name=fn,
+                                 mime="image/pdf"
+                              )
+                   
+            if bar_swarm == "Swarm Plot":
+                t_swarm = df_swarm4.T
+                t_swarm = t_swarm.sort_index()
+                conditions = {x[0] for x in df_swarm4.columns}
+                genes = {x for x in df_swarm4.index}
+                leng = len(conditions)-1
+                # produces zeros matrix that can be filled for [(gene1,gene1),condition,p-value], 
+                # need to compare pairs to themselves since plots sorted by strain then plot based on the conditions split by gene name
+                anovas = np.zeros((leng, 3),dtype=object)
+                anovas.shape = (leng,3)
+                for c in sorted(genes):
+                    df1 = t_swarm.xs((c), axis =1, drop_level=False)
+                    df2 = df1.melt(ignore_index=False)
+                    df2 = df2.reset_index()
+
+                    df2.columns = ["Condition","Replicate","Strain","Score"]
+                    res = stat()
+                    res.tukey_hsd(df=df2, res_var='Score', xfac_var='Condition', anova_model='Score ~ C(Condition)')
+                    #takes only those compared to the WT
+                    stats1 = res.tukey_summary[res.tukey_summary['group1'] == ("0_"+vscond)]
+                    # makes list of the current condition same length as number of genes - 1. 
+                    # Allows for zipping to the pairs and p-values for the matrix.
+                    genes = ([c] * leng)
+                    pairs = list(zip(stats1.group2,stats1.group2))
+                    pvalues = list(stats1['p-value'])
+                    cond = list(genes)
+                    grouped = list(zip(pairs,cond,pvalues))
+                    grouped = np.array(grouped,dtype=object)
+                    anovas = np.append(anovas,grouped, axis=0)
+                anovas = anovas[leng:len(anovas)]
+                for x in list(df_swarm4.xs(("0_"+vscond), axis=1, drop_level=False).columns):
+                    df_swarm4 = df_swarm4.drop(x, axis=1)
+                b = df_swarm4.T
+                conditions = {x for x in b.columns}
+                for c,i in zip(sorted(conditions),range(len(conditions))):
+                    df1 = b.xs((c), axis=1, drop_level=False)
+                    df1 = df1.T
+                    df2 = df1.melt(ignore_index=False)
+                    df2.columns = ["Condition","Replicate","Score"]
+                    m = [row for row in anovas if c == row[1]]
+                    pair1 = [(row[0][0],row[0][1]) for row in m]
+                    pvalue1 = [row[2] for row in m]
+                    subcat_palette = sns.dark_palette("#8BF", reverse=True, n_colors=5)
+                    plotting_parameters = {
+                                'data':    df2,
+                                'x':       'Condition',
+                                'y':       'Score',
+                                'palette': subcat_palette[1:]}
+                    sns.set(style="white")
+                    sns.set_context("paper")
+                    fig, ax = plt.subplots()
+                    ax = sns.swarmplot(x="Condition", y="Score",hue="Condition", data=df2, alpha=1,palette=st.session_state.pal_type, order=order_list)
+                    ax = sns.boxplot(showmeans=True,
+                            meanline=True,
+                            meanprops={'color': 'k', 'ls': '-', 'lw': 1},
+                            medianprops={'visible': False},
+                            whiskerprops={'visible': False},
+                            zorder=10,
+                            x="Condition", y="Score",data=df2,
+                            showfliers=False,
+                            showbox=False,
+                            showcaps=False,order=order_list,
+                            ax=ax)
+                    # adds p-value annotations for each condition.
+                    annotator = Annotator(ax, pair1, **plotting_parameters)
+                    annotator.set_pvalues(pvalue1)
+                    annotator.configure(line_width = 0)
+                    annotator.annotate()
+                    for patch in ax.artists:
+                        r, g, b, a = patch.get_facecolor()
+                        patch.set_facecolor((r, g, b, 0))    
+                    ax.set(xlabel= "Condition",ylabel='Fitness Ratio')
+                    if sety == "Yes":
+                        ax.set_ylim(ylow,yhigh)
+                    plt.title(c)
+                    if xlabes == 'No':
+                        plt.xticks([])
+                    if  xlabes == 'Yes':
+                        plt.xticks(rotation=rote)
+                    fig.set_size_inches(width1, height1)
+                    sns.despine()
+                    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                                  fancybox=True, shadow=False, ncol=1)
+                    if width1 >= 10:
+                        myexpand = st.expander(label=c, expanded=False)
+                        myexpand.pyplot(fig)
+                        figs.append(fig)
+                        cs.append(c)
+                        img =(io.BytesIO())
+
+                        plt.savefig(img, format='pdf', bbox_inches='tight')
+                        fn = ("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                        temp = os.path.join(new_dir,fn)
+                        with open(temp,'wb') as fid:
+                            pickle.dump(fig, fid)
+                        fns.append(fn)
+                        but8 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+
+                    if width1 < 10:
+                        a= i+1
+                        if (a % 2) != 0:
+                            cola, colb = st.columns((1,1))
+                            myexpand = cola.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig) 
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but9 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+
+                        else:
+                            myexpand = colb.expander(label=c, expanded=False)
+                            myexpand.pyplot(fig)
+                            figs.append(fig)
+                            cs.append(c)
+                            img =(io.BytesIO())
+
+
+                            plt.savefig(img, format='pdf', bbox_inches='tight')
+                            fn =("ChemGAPP_"+c+"_"+iris_type+"_"+bar_swarm+".pdf")
+                            temp = os.path.join(new_dir,fn)
+                            with open(temp,'wb') as fid:
+                                pickle.dump(fig, fid)
+                            fns.append(fn)
+                            but10 = myexpand.download_button(
+                             label="Download image",
+                             data=img,
+                             file_name=fn,
+                             mime="image/pdf"
+                          )
+                    
+
+
     if "figures" not in st.session_state:
             st.session_state.figures = figs
     elif "figures" in st.session_state:
