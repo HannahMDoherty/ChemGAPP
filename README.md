@@ -606,42 +606,69 @@ Where concentrations have decimals, use a comma instead of a period:
 E.g. `AMPICILLIN-0,5mM-6_B.JPG.iris`
 
 ```
-usage: chemgapp_small [-h] [-p PATH] [-o OUTPUTFILE_PREFIX] [-pf PLATEINFOPATH] [-m MAX_COLONY_SIZE] [-wt WILDTYPE] [-it IRIS_TYPE] [-col_plot COLOURPALETTE] [-col_heat COLOURHEATMAP] [-wd WIDTH] [-ht HEIGHT] [-r ROTATION] [-cs CIRCLESIZE] [-g GROUP] [-pt PLOTTYPE]
-                         [-rm REMOVE_STRAIN] [-ymax Y_MAX] [-ymin Y_MIN]
+usage: chemgapp_small [-h] [-p PATH] [-o OUTPUTFILE_PREFIX]
+                      [-pf PLATEINFOPATH] [-m MAX_COLONY_SIZE] [-wt WILDTYPE]
+                      [-cd CONDITION] [-it IRIS_TYPE]
+                      [-col_plot COLOURPALETTE] [-col_heat COLOURHEATMAP]
+                      [-wd WIDTH] [-ht HEIGHT] [-hwd HEATMAP_WIDTH]
+                      [-hht HEATMAP_HEIGHT] [-hs HEATMAP_FONTSIZE]
+                      [-r ROTATION] [-cs CIRCLESIZE] [-g GROUP] [-pt PLOTTYPE]
+                      [-rm REMOVE_STRAIN] [-ymax Y_MAX] [-ymin Y_MIN]
 
 Analyses small scale chemical genomic screen data
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p PATH, --PATH PATH  Path to folder which contains IRIS files (default: None)
+  -p PATH, --PATH PATH  Path to folder which contains IRIS files (default:
+                        None)
   -o OUTPUTFILE_PREFIX, --outputfile_prefix OUTPUTFILE_PREFIX
                         Path and prefix for output file (default: None)
   -pf PLATEINFOPATH, --PlateInfoPath PLATEINFOPATH
-                        The path to the folder containing the plate info files. (default: None)
+                        The path to the folder containing the plate info
+                        files. (default: None)
   -m MAX_COLONY_SIZE, --max_colony_size MAX_COLONY_SIZE
-                        Maximum colony size allowed, any colony larger than this will be set to this maximum (default: False)
+                        Maximum colony size allowed, any colony larger than
+                        this will be removed (default: False)
   -wt WILDTYPE, --WildType WILDTYPE
-                        Name of wild type strain within plate info file. (default: None)
+                        If comparing to WT in same condition: Name of wild
+                        type strain within plate info file. (default: None)
+  -cd CONDITION, --Condition CONDITION
+                        If comparing mutants to themselves within a control
+                        condition: Name of condition. (default: None)
   -it IRIS_TYPE, --IRIS_type IRIS_TYPE
-                        Input IRIS morphology to test. Options: size,circularity,opacity (default: size)
+                        Input IRIS morphology to test. Options:
+                        size,circularity,opacity (default: size)
   -col_plot COLOURPALETTE, --colourpalette COLOURPALETTE
-                        Name of Seaborn colour palette to use for the bar and swarm plots. (default: GnBu)
+                        Name of Seaborn colour palette to use for the bar and
+                        swarm plots. (default: icefire)
   -col_heat COLOURHEATMAP, --colourheatmap COLOURHEATMAP
-                        Name of Seaborn colour palette to use for the heatmap. (default: bwr_r)
+                        Name of Seaborn colour palette to use for the heatmap.
+                        (default: bwr_r)
   -wd WIDTH, --width WIDTH
                         Figure width to use for the graphs. (default: 5)
   -ht HEIGHT, --height HEIGHT
                         Figure height to use for the graphs. (default: 5)
+  -hwd HEATMAP_WIDTH, --heatmap_width HEATMAP_WIDTH
+                        Figure width to use for the heatmap. (default: 10)
+  -hht HEATMAP_HEIGHT, --heatmap_height HEATMAP_HEIGHT
+                        Figure height to use for the heatmap. (default: 10)
+  -hs HEATMAP_FONTSIZE, --heatmap_fontsize HEATMAP_FONTSIZE
+                        Font size of heatmap annotation. To remove annotation
+                        set to 0 (default: 6)
   -r ROTATION, --rotation ROTATION
                         X Axis label rotation (default: 90)
   -cs CIRCLESIZE, --CircleSize CIRCLESIZE
                         SwarmPlot circle size (default: 2.5)
   -g GROUP, --group GROUP
-                        Group bar plots by strain or condition. Options = strain, condition. (default: condition)
+                        Group bar plots by strain or condition. Options =
+                        strain, condition. (default: condition)
   -pt PLOTTYPE, --PlotType PLOTTYPE
-                        Type of Plot. Options: barplot, swarmplot (default: barplot)
+                        Type of Plot. Options: barplot, swarmplot (default:
+                        barplot)
   -rm REMOVE_STRAIN, --remove_strain REMOVE_STRAIN
-                        txt file of strain names to remove separated by ';'. Names must match those in plate information file. E.g. mutant1;mutant2;mutant4 (default: None)
+                        txt file of strain names to remove separated by ';'.
+                        Names must match those in plate information file. E.g.
+                        mutant1;mutant2;mutant4 (default: None)
   -ymax Y_MAX, --y_max Y_MAX
                         Maximum limit for y axis (default: None)
   -ymin Y_MIN, --y_min Y_MIN
