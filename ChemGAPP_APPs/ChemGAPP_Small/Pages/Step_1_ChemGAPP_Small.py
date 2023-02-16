@@ -62,28 +62,51 @@ These should be txt files with the format:
 
 -----
 
-4- Enter the name of the wild type strain. 
+4- Decide whether you wish to compare mutants to a Wildype within the same condition or compare mutants to themselves in a control condition.
+
+If you choose `Wildtype`:
+
+Enter the name of the wild type strain. 
 
 This must match the name given in the plate information file.
 E.g. `WT`
 
------
+If you choose `Control Condition`:
 
-5- Optionally enter the name of a Seaborn colour palette to change the colour of the output plots. 
+Enter the name of the control condition. 
 
-The default palette is `Spectral`.
+This must match the iris file name after it has been adjusted for the datasets. 
 
------
+E.g. for `AMPICILLIN-50mM-6_B.JPG.iris` you would input `AMPICILLIN 50mM`.
 
-6- Select how you want the bar plots to be group. Either by strain or by condition.
+if you used a plate without a concentration, ensure to add a space after the condition:
 
------
-
-7- Press Begin!
+E.g. `LB--1_A.JPG.iris` would be `LB `.
 
 -----
 
-8- To save bar plot images, click on the `Download image` button beneath the plot. This will save the image as a pdf file.
+5- Select which IRIS phenotype you would like to analyse. If size is selected optionally input a maximum conlony size value.
+
+-----
+
+6- Select how you want the plots to be grouped. Either by strain or by condition.
+
+-----
+
+7- Select the type of plot you wish to produce; Bar plots or Swarm plots. 
+
+Bar plots will display 95 % confidence intervals as the statistic. Swarm plots will display ANOVA significance annotations. 
+
+-----
+
+8- Select your customisation options.
+
+------
+
+9- Click `Begin!`
+
+------
+10- To save bar plot images, click on the `Download image` button beneath the plot. This will save the image as a pdf file.
 
     * Files will be downloaded to your Downloads Folder
 
@@ -885,9 +908,9 @@ if complete:
         fig.set_size_inches(heat_width, heat_height)
         colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
         if heatsize == 0:
-            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".2f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
         else:
-            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".2f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
         myexp = st.expander(label="Heatmap:", expanded=False)
         col1a,col1b,col1c = myexp.columns((1,4,1))
         col1b.pyplot(fig)
@@ -1433,9 +1456,9 @@ if complete:
         fig.set_size_inches(heat_width, heat_height)
         colp = sns.color_palette(st.session_state.pal2_type, as_cmap=True)
         if heatsize == 0:
-            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=False,fmt=".2f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
         else:
-            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".4f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
+            ax = sns.heatmap(c,center=1,cmap=colp,square=False,annot=True,annot_kws={"size": heatsize},fmt=".2f",linewidths=.1,linecolor='0',vmin=0, vmax=2)
         myexp = st.expander(label="Heatmap:", expanded=False)
         col1a,col1b,col1c = myexp.columns((1,4,1))
         col1b.pyplot(fig)
