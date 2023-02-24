@@ -817,7 +817,6 @@ Output files include:
 
 These should be txt files with the format:
 
-
 | Row | Column | Strain |
 |  ------------- | :-------------: | :-------------: |
 | 1 | 1 | WT |
@@ -829,22 +828,51 @@ These should be txt files with the format:
 | 16 | 24 | Mutantx |
 
 
-4- Enter the name of the wild type strain. 
+4- Decide whether you wish to compare mutants to a Wildype within the same condition or compare mutants to themselves in a control condition.
+
+If you choose `Wildtype`:
+
+Enter the name of the wild type strain. 
 
 This must match the name given in the plate information file.
 E.g. `WT`
 
+If you choose `Control Condition`:
 
-5- Optionally enter the name of a Seaborn colour palette to change the colour of the output plots. 
+Enter the name of the control condition. 
 
-The default palette is `Spectral`.
+This must match the iris file name after it has been adjusted for the datasets. 
 
-6- Select how you want the bar plots to be group. Either by strain or by condition.
-
-7- Press Begin!
+E.g. for `AMPICILLIN-50mM-6_B.JPG.iris` you would input `AMPICILLIN 50mM`.
 
 
-8- To save bar plot images, right click on the image and select `Save as Image`. This will save the image as a png file.
+
+5- Select which IRIS phenotype you would like to analyse. If size is selected optionally input a maximum conlony size value.
+
+
+
+6- Select how you want the plots to be grouped. Either by strain or by condition.
+
+
+
+7- Select the type of plot you wish to produce; Bar plots or Swarm plots. 
+
+Bar plots will display 95 % confidence intervals as the statistic. Swarm plots will display ANOVA significance annotations. 
+
+
+8- Select your customisation options.
+
+
+
+9- Click `Begin!`
+
+
+10- To save bar plot images, click on the `Download image` button beneath the plot. This will save the image as a pdf file.
+
+    * Files will be downloaded to your Downloads Folder
+
+    * Do not try save an image until all plots are produced.
+
 
 ### ChemGAPP GI
 

@@ -561,6 +561,10 @@ def main():
 
     if vscond != None:
         df_grouped = df_with_strains.groupby(level=0).mean()
+        if vscond in df_grouped.columns:
+            vscond = vscond
+        else:
+            vscond = (vscond+" ")
         df_grouped["versus"] = np.mean(df_grouped[vscond],axis=1)
         cols = df_grouped.columns
         df_bar = pd.DataFrame(index=df_grouped.index)

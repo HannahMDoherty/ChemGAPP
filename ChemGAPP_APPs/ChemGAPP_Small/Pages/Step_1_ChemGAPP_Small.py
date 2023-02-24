@@ -79,10 +79,6 @@ This must match the iris file name after it has been adjusted for the datasets.
 
 E.g. for `AMPICILLIN-50mM-6_B.JPG.iris` you would input `AMPICILLIN 50mM`.
 
-if you used a plate without a concentration, ensure to add a space after the condition:
-
-E.g. `LB--1_A.JPG.iris` would be `LB `.
-
 -----
 
 5- Select which IRIS phenotype you would like to analyse. If size is selected optionally input a maximum conlony size value.
@@ -1418,6 +1414,11 @@ if complete:
                           )
     if comp == "Control Condition":
         df_grouped = df_with_strains.groupby(level=0).mean()
+        if vscond in df_grouped.columns:
+            vscond = vscond
+        else:
+            vscond = (vscond+" ")
+            st.session_state.vscond_type = vscond
         df_grouped["versus"] = np.mean(df_grouped[vscond],axis=1)
         cols = df_grouped.columns
         df_bar = pd.DataFrame(index=df_grouped.index)
