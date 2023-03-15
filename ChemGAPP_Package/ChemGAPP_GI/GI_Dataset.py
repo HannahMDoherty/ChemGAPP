@@ -106,6 +106,8 @@ def main():
         for r in sorted(replicate):
             dfb = df1.xs((r), axis=0, drop_level=False)
             dfb = dfb.sort_index(level="Order")
+            if dfb.iloc[0][0] == 0:
+                dfb.iloc[0][0] = np.nan
             #calculates the fitness ratios and double expected ratios and adds them to the dataset
             name = (dfb.iloc[1][0]/dfb.iloc[0][0],dfb.iloc[2][0]/dfb.iloc[0][0],(dfb.iloc[1][0]/dfb.iloc[0][0])*(dfb.iloc[2][0]/dfb.iloc[0][0]),dfb.iloc[3][0]/dfb.iloc[0][0])
             columns = list([dfb.iloc[1].name[2],"Secondary Gene","Double Expected","Double Observed"])
