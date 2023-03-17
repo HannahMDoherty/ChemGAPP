@@ -771,20 +771,40 @@ E.g. `AMPICILLIN-0,5 mM-1-1_B.JPG.iris`
 
 #### Step_4_Dataset_Comparison.py <a name="Step_4_Dataset_Comparison"></a>
 
-1- Simply upload your cluster file. 
+1- Upload your cluster file. 
 
-File should be in CSV format and consist of two columns; Cluster and Gene.
+File should be in CSV format and consist of two columns; Cluster and Gene. 
+
+The Genes must match the names assigned to the scored dataset in the step 3.
 
 
 E.g: 
 
-| Cluster | Gene |
-|  ------------- | :-------------: |
-| 1 | PA14_00050 |
-| 2 | PA14_00060 |
-| 2 | PA14_00070 |
-| 4 | PA14_00080 |
-| 5 | PA14_00090 |
+| Cluster | Gene     |                
+|  ------ | :------: |      
+| 1 | 1_2_PA14_00050 |      
+| 2 | 1_3_PA14_00060 |      
+| 2 | 1_4_PA14_00070 |      
+| 4 | 1_5_PA14_00080 |      
+| 5 | 1_6_PA14_00090 |      
+
+Matching to scored dataset:
+
+| Gene | Condition A    | Condition B| 
+|  ------| ------ | :------: |     
+| 1_2_PA14_00050 | 0.12 | 1.23 |     
+| 1_3_PA14_00060 | 0.54 | 1.53 |     
+| 1_4_PA14_00070 | 5.62 | -1.23 |     
+| 1_5_PA14_00080 | -10.12 | 8.25 |     
+| 1_6_PA14_00090 | 0.16 | -5.73 |   
+
+------------------
+
+2- Select if you want to analyse the averaged or non-averaged datasets from Step 3.
+
+---------------
+
+3- Press Begin!
 
 ### ChemGAPP Small
 
