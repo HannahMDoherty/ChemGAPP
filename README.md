@@ -556,18 +556,21 @@ Plate info files should be formatted as such:
 | 1        | 2 |  PA2543   |
 
 ```
-usage: add_gene_names [-h] [-i INPUTFILE] [-o OUTPUTFILE] [-p PATH]
+usage: add_gene_names [-h] [-i INPUTFILE] [-o OUTPUTPATH] [-p PATH]
+
+Add the gene names from the plate info files to make the final dataset. The
+plate info files must be in a folder by themselves and should be .txt files.
 
 optional arguments:
   -h, --help            show this help message and exit
-
-Required arguments:
   -i INPUTFILE, --InputFile INPUTFILE
-                        The CSV output of s_scores (default: None)
-  -o OUTPUTFILE, --OutputFile OUTPUTFILE
-                        A CSV file of the final dataset. (default: None)
-  -p PATH, --PATH PATH  
-                        The path to the folder containing the plate info files. (default: None)
+                        The CSV output of S_Scores.py (default: None)
+  -o OUTPUTPATH, --Outputpath OUTPUTPATH
+                        A path a prefix for the output files E.g
+                        ~/Desktop/ChemGAPP would make
+                        ChemGAPP_Final_Dataset.txt . (default: None)
+  -p PATH, --PATH PATH  The path to the folder containing the plate info
+                        files. (default: None)
 ```
 
 #### cosine_similarity <a name="Cosine_Similarity"></a>
