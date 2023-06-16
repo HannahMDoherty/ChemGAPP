@@ -765,6 +765,10 @@ E.g. `AMPICILLIN-0,5 mM-1-1_B.JPG.iris`
 3- Press `Begin Quality Control Tests!`
 
 
+
+4- Check the replicate reproducibilty 'r' value for improvement after curation. Aim to maximise this r value with your curation.
+
+
 #### Step_3_S_Score_Calculator.py <a name="Step_3_S_Score_Calculator"></a>
 
 

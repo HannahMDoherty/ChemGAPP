@@ -7,6 +7,11 @@ from scipy.stats import ranksums
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
+import mpl_scatter_density
+from matplotlib.colors import LinearSegmentedColormap
+from scipy.stats.stats import pearsonr
+from itertools import combinations
+
 st.set_page_config(layout="wide")
 #st.markdown("# Main page ")
 #st.sidebar.markdown("# Main page")
@@ -23,6 +28,10 @@ my_expanderb.markdown("""
 -----
 
 3- Press `Begin Quality Control Tests!`
+
+-----
+
+4- Check the replicate reproducibilty 'r' value for improvement after curation. Aim to maximise this r value with your curation.
 
 """
 )
@@ -1343,5 +1352,110 @@ if st.session_state.outputfile:
                 st.session_state.Threshold_vals = thresholdset
             with open((os.path.expanduser(st.session_state.outputfile)+'_Chosen_Thresholds.txt'), 'w') as f:
                 f.write(st.session_state.Threshold_vals)
+            
+            # Replicate reproducibility plot
+
+            def pearsonr_ci(x, y, ci=95, n_boots=10000):
+                x = np.asarray(x)
+                y = np.asarray(y)
+                
+                # (n_boots, n_observations) paired arrays
+                rand_ixs = np.random.randint(0, x.shape[0], size=(n_boots, x.shape[0]))
+                x_boots = x[rand_ixs]
+                y_boots = y[rand_ixs]
+                
+                # differences from mean
+                x_mdiffs = x_boots - x_boots.mean(axis=1)[:, None]
+                y_mdiffs = y_boots - y_boots.mean(axis=1)[:, None]
+                
+                # sums of squares
+                x_ss = np.einsum('ij, ij -> i', x_mdiffs, x_mdiffs)
+                y_ss = np.einsum('ij, ij -> i', y_mdiffs, y_mdiffs)
+                
+                # pearson correlations
+                r_boots = np.einsum('ij, ij -> i', x_mdiffs, y_mdiffs) / np.sqrt(x_ss * y_ss)
+                
+                # upper and lower bounds for confidence interval
+                ci_low = np.percentile(r_boots, (100 - ci) / 2)
+                ci_high = np.percentile(r_boots, (ci + 100) / 2)
+                return ci_low, ci_high
+            def replicate_reproducibility(inputnorm,xlimt,ylimt):
+                # Reads input file
+                rep = inputnorm
+                # Finds the unique set of replicate within the dataset
+                list1 = {x[2] for x in rep.columns}
+                # melts dataset to have each value in single row
+                melted_rep = rep.melt(ignore_index=False).reset_index()
+                #produces ID from the multiheader column names that were converted by melt into different columns (exluding replicate letter) and the row and column coordinates of each mutant e.g. Sourceplatenumber_condition_row_column
+                melted_rep['ID'] = (melted_rep["variable_0"].astype(str)+"_"+melted_rep["variable_1"]+"_"+melted_rep["row"].astype(str)+"_"+melted_rep["column"].astype(str))
+                # makes a list of unique pairs of replicates
+                combo = [",".join(map(str, comb)) for comb in combinations(list1, 2)]
+                # creates new empty dataframe with columns for the ID, the two replicate scores, the replicate letter for replicate 1 and 2.
+                df_norm = pd.DataFrame(columns = ["ID","Replicate_1","Replicate_2","Rep_ID1","Rep_ID2"])
+                for a in combo:
+                    #takes the subset of the melted dataframe that is for the first replicate in the pair
+                    rep1 = melted_rep[melted_rep['variable_2'] == a.split(",")[0]]
+                    #takes the subset of the melted dataframe that is for the second replicate in the pair
+                    rep2 = melted_rep[melted_rep['variable_2'] == a.split(",")[1]]
+                    # takes just the ID and value columns from this subset and resets the index
+                    rep1 = rep1[['ID',"value"]].reset_index(drop=True)
+                    # renames value column as Replicate_1
+                    rep1 = rep1.rename(columns={"value": "Replicate_1"})
+                    # takes just the ID and value columns from this subset and resets the index
+                    rep2 = rep2[['ID',"value"]].reset_index(drop=True)
+                    # renames value column as Replicate_2
+                    rep2 = rep2.rename(columns={"value": "Replicate_2"})
+                    #joins the two subsets togther matching values based on the ID
+                    inner_join = pd.merge(rep1, rep2, on ='ID', how ='inner')
+                    #assigns the the replicate letters 
+                    inner_join["Rep_ID1"] = a.split(",")[0]
+                    inner_join["Rep_ID2"] = a.split(",")[1]
+                    #concatenates the values to the premade empty dataframe, adding them vertically
+                    df_norm = pd.concat([df_norm,inner_join], ignore_index=True)
+                    #removes rows with NAs
+                    df_norm = df_norm[~df_norm['Replicate_1'].isna()]
+                    df_norm = df_norm[~df_norm['Replicate_2'].isna()]
+                #sets the colours for the plot
+                white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
+                    (0, '#ffffff'),
+                    (1e-200, '#440053'),
+                    (0.001, '#404388'),
+                    (0.01, '#2a788e'),
+                    (0.1, '#21a784'),
+                    (0.3, '#fde624'),
+                    (1, 'r'),
+                ], N=65535)
+                print("Making Plot")
+                #produces plot
+                def using_mpl_scatter_density(fig, x, y):
+
+                    b = fig.add_subplot(1, 1, 1, projection='scatter_density')
+                    density = b.scatter_density(x, y, cmap=white_viridis)
+                    fig.colorbar(density, label='Number of points per pixel')
+                    #calculates correlation coefficient (r)
+                    res = pearsonr(list(df_norm["Replicate_1"]),list(df_norm["Replicate_2"]))
+                    pci = pearsonr_ci(list(df_norm["Replicate_1"]),list(df_norm["Replicate_2"]), ci=95, n_boots=100)
+                    #adds r to the plot
+                    b.text(0,ylimt+(ylimt*0.3),("$r = $"+str(round(res[0],3))))
+                    b.text(0,ylimt+(ylimt*0.2),("$p value = $"+str('{:.3g}'.format((res[1])))))
+                    b.text(0,ylimt+(ylimt*0.1),("95% CI = "+str(round(pci[0],3))+", "+str(round(pci[1],4))))
+                sns.set_theme(style="white")
+                fig = plt.figure()
+                using_mpl_scatter_density(fig, x=df_norm["Replicate_1"], y=df_norm["Replicate_2"])
+                plt.xlim(0,xlimt)
+                plt.ylim(0,ylimt)
+                plt.xlabel("Replicate 1")
+                plt.ylabel("Replicate 2")
+                return fig
+            
+            xlimit = st.session_state.normalised_dataset.max().max()
+            my_expander5 = st.expander(label="Replicate Reproducibility Plots:")
+            colA1, colA2 = my_expander5.columns((1,1))
+            colA1.write("Non-curated")
+            fig1 = replicate_reproducibility(st.session_state.normalised_dataset,xlimit,xlimit)
+            colA1.pyplot(fig1)
+            colA2.write("Curated")
+            fig2 = replicate_reproducibility(st.session_state.normalised_curated_dataset,xlimit,xlimit)
+            colA2.pyplot(fig2)
             st.success("Please Continue to Step 3!")
             
