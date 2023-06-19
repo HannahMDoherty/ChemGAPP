@@ -1270,7 +1270,6 @@ if st.session_state.outputfile:
             #runs through each plate individually matching the plates for the outer and inner dataframes
             for c1,c2,i in zip(sorted(df_pmm.columns),sorted(df_outer.columns), range(len(m.columns))):
                 rounds = rounds + 1
-                print(rounds)
                 ar1 = pmm_array[:,i]
                 ar2 = n_array[:,i]
                 # finds the colony sizes within the 40th and 60th percentiles for PMM calculation
@@ -1354,8 +1353,8 @@ if st.session_state.outputfile:
                 f.write(st.session_state.Threshold_vals)
             
             # Replicate reproducibility plot
-
-            def pearsonr_ci(x, y, ci=95, n_boots=10000):
+            info2 = st.info("Producing replicate reproducibility plots...")
+            def pearsonr_ci(x, y, ci=95, n_boots=100):
                 x = np.asarray(x)
                 y = np.asarray(y)
                 
@@ -1425,7 +1424,7 @@ if st.session_state.outputfile:
                     (0.3, '#fde624'),
                     (1, 'r'),
                 ], N=65535)
-                print("Making Plot")
+
                 #produces plot
                 def using_mpl_scatter_density(fig, x, y):
 
@@ -1449,13 +1448,14 @@ if st.session_state.outputfile:
                 return fig
             
             xlimit = st.session_state.normalised_dataset.max().max()
+            fig1 = replicate_reproducibility(st.session_state.normalised_dataset,xlimit,xlimit)
+            fig2 = replicate_reproducibility(st.session_state.normalised_curated_dataset,xlimit,xlimit)
             my_expander5 = st.expander(label="Replicate Reproducibility Plots:")
             colA1, colA2 = my_expander5.columns((1,1))
             colA1.write("Non-curated")
-            fig1 = replicate_reproducibility(st.session_state.normalised_dataset,xlimit,xlimit)
             colA1.pyplot(fig1)
             colA2.write("Curated")
-            fig2 = replicate_reproducibility(st.session_state.normalised_curated_dataset,xlimit,xlimit)
             colA2.pyplot(fig2)
+            info2.empty()
             st.success("Please Continue to Step 3!")
             

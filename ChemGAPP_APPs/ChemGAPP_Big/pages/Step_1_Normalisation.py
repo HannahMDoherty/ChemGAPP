@@ -101,7 +101,6 @@ if complete:
             m1 = m1.to_frame()
             m = m.join(m1, how='inner')
         percent_complete = percent_complete + jump
-        print(percent_complete)
         if percent_complete > 1:
             percent_complete = round(percent_complete, 2)
         my_bar.progress(percent_complete)
@@ -175,7 +174,6 @@ if complete:
     #runs through each plate individually matching the plates for the outer and inner dataframes
     for c1,c2,i in zip(sorted(df_pmm.columns),sorted(df_outer.columns), range(len(m.columns))):
         rounds = rounds + 1
-        print(rounds)
         ar1 = pmm_array[:,i]
         ar2 = n_array[:,i]
         # finds the colony sizes within the 40th and 60th percentiles for PMM calculation
@@ -195,7 +193,6 @@ if complete:
         w, p = ranksums(arA, arB)
         # if siginificantly different performs the first step and second step. 
         if p < 0.05:
-            print("Different Dist")
             for ind, j in zip(m.index,range(len(ar2))):
                 # for each colony within the outer two edges this calculates the median of the row and column in which they are located
                 if ind[0] == 1 or ind[0] == rlen or ind[1] == 1 or ind[1] == clen or ind[0] == 2 or ind[0] == (rlen-1) or ind[1] == 2 or ind[1] == (clen-1):  
@@ -235,7 +232,6 @@ if complete:
         # if outer edge and inner colonies are not signficantly different 
         # then just scales entire plate such that the PMM is equal to the median colony size of entire dataset
         else:
-            print(c1,"Same Dist")
             for ind, j in zip(m.index,range(len(ar2))):
                 ar2[j] = ((ar2[j])*(m_medain/PMM))
             ar2.shape = (mlen,1)
@@ -312,13 +308,10 @@ if complete:
     zero_count = pd.DataFrame(columns=['Plate','Condition','Replicate','Batch','Normal','Bigger','Smaller',
                                 'NaN','% Normal','% Bigger','% Smaller','% NaN'])
     replicate = {x[0:4] for x in ABSN.columns}
-    rounds = 0
     #iterates through every column of the dataset and counts the N, B, S 
     # and X values then calculates the percentage of the plate they represent
     #these are then appended into the empty dataset for each plate condition replicate and batch. 
     for r in sorted(replicate):
-        rounds = rounds + 1
-        print(rounds,r)
         df1 = ABSN.xs((r), axis =1, drop_level=False)
         ar1 = np.array(df1)
         count_S = int(np.count_nonzero(ar1 == "S", axis=0))
@@ -429,11 +422,10 @@ if complete:
     #makes df with same index as the input normalised dataset file.
     Var_DF = pd.DataFrame(index=ardf.index)
     conditions = {x[0:3] for x in ardf.columns}
-    rounds = 0 
+
     #splits into source plate, batch and condition, then compares the variance between the replicates.
     for c in sorted(conditions):
-        rounds = rounds + 1
-        print(rounds)
+
         df1 = ardf.xs((c), axis =1, drop_level=False)
         ar1 = np.array(df1)
         ar2 = np.array([])
