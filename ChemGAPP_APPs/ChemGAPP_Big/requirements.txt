@@ -7,3 +7,4 @@ pathlib2 == 2.3.5
 scipy == 1.6.2
 regex == 2022.9.13
 random2 == 1.0.1
+mpl-scatter-density == 0.7
