@@ -1447,7 +1447,7 @@ if st.session_state.outputfile:
                 plt.ylabel("Replicate 2")
                 return fig
             
-            xlimit = st.session_state.normalised_dataset.max().max()
+            xlimit = st.session_state.normalised_dataset.replace(np.inf,np.nan).max().max()
             fig1 = replicate_reproducibility(st.session_state.normalised_dataset,xlimit,xlimit)
             fig2 = replicate_reproducibility(st.session_state.normalised_curated_dataset,xlimit,xlimit)
             my_expander5 = st.expander(label="Replicate Reproducibility Plots:")
