@@ -1380,7 +1380,7 @@ if st.session_state.outputfile:
                 return ci_low, ci_high
             def replicate_reproducibility(inputnorm,xlimt,ylimt):
                 # Reads input file
-                rep = inputnorm
+                rep = inputnorm.replace(np.inf,np.nan)
                 # Finds the unique set of replicate within the dataset
                 list1 = {x[2] for x in rep.columns}
                 # melts dataset to have each value in single row
