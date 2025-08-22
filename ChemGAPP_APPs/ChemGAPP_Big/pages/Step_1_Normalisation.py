@@ -667,12 +667,12 @@ if complete:
                    sorted(thres_ar)[(int(len(thres_ar)*(16/24)))],
                    sorted(thres_ar)[(int(len(thres_ar)*(20/24)))])
     mwc_p_f = pd.DataFrame(columns=['Condition','Batch',
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[0], precision=3)),
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[1], precision=3)),
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[2], precision=3)),
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[3], precision=3)),
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[4], precision=3)),
-                                   'Mann Whitney Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
+                                   'Mann Whitney Threshold 1: '+ str(np.format_float_scientific(thres_array[0], precision=3)),
+                                   'Mann Whitney Threshold 2: '+ str(np.format_float_scientific(thres_array[1], precision=3)),
+                                   'Mann Whitney Threshold 3: '+ str(np.format_float_scientific(thres_array[2], precision=3)),
+                                   'Mann Whitney Threshold 4: '+ str(np.format_float_scientific(thres_array[3], precision=3)),
+                                   'Mann Whitney Threshold 5: '+ str(np.format_float_scientific(thres_array[4], precision=3)),
+                                   'Mann Whitney Threshold 6: '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     Pmean_array = np.array(Pmean)
     plt2 = {x[0:5] for x in Pmean.index}
     #Checks mean Variance p-value for each condition greater than thresholds
@@ -725,12 +725,12 @@ if complete:
                    sorted(thres_ar)[(int(len(thres_ar)*(20/24)))])
                 
     varc_p_f = pd.DataFrame(columns=['Condition','Batch',
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[0], precision=3)),
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[1], precision=3)),
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[2], precision=3)),
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[3], precision=3)),
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[4], precision=3)),
-                                   'Average Variance Threshold '+ str(np.format_float_scientific(thres_array[5], precision=3))])
+                                   'Average Variance Threshold 1: '+ str(np.format_float_scientific(thres_array[0], precision=3)),
+                                   'Average Variance Threshold 2: '+ str(np.format_float_scientific(thres_array[1], precision=3)),
+                                   'Average Variance Threshold 3: '+ str(np.format_float_scientific(thres_array[2], precision=3)),
+                                   'Average Variance Threshold 4: '+ str(np.format_float_scientific(thres_array[3], precision=3)),
+                                   'Average Variance Threshold 5: '+ str(np.format_float_scientific(thres_array[4], precision=3)),
+                                   'Average Variance Threshold 6: '+ str(np.format_float_scientific(thres_array[5], precision=3))])
     varc_array = np.array(ave_Var_cond)
     plt2 = {x[0] for x in ave_Var_cond.index}
     #Checks mean Variance for each condition greater than thresholds
